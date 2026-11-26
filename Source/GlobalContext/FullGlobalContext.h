@@ -43,7 +43,7 @@
 #include <CS2/Classes/ConVarTypes.h>
 
 struct FullGlobalContext {
-    FullGlobalContext(PeepEventsHook peepEventsHook, DynamicLibrary clientDLL, DynamicLibrary panoramaDLL, DynamicLibrary worldRendererDLL, const MemoryPatterns& memoryPatterns, Tier0Dll tier0Dll) noexcept
+    FullGlobalContext(PeepEventsHook peepEventsHook, DynamicLibrary clientDLL, DynamicLibrary panoramaDLL, const MemoryPatterns& memoryPatterns, Tier0Dll tier0Dll) noexcept
         : worldRendererDLL{WorldRendererDll{}}, patternSearchResults{memoryPatterns}
         , fileNameSymbolTableState{tier0Dll}
         , memAllocState{tier0Dll}
