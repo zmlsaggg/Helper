@@ -119,6 +119,11 @@ struct HookContext {
         return fullGlobalContext.hooks;
     }
 
+    [[nodiscard]] void* worldRendererManager() noexcept
+    {
+        return fullGlobalContext.worldRendererDLL.worldRendererManager();
+    }
+
     [[nodiscard]] auto hud() noexcept
     {
         return Hud{*this};
