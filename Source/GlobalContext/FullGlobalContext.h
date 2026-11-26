@@ -9,6 +9,7 @@
 #include <GameClient/Panorama/PanoramaSymbols.h>
 #include <OutlineGlow/GlowSceneObjectState.h>
 #include <GameClient/DLLs/Tier0Dll.h>
+#include <GameClient/DLLs/WorldRendererDll.h>
 #include <GameClient/Entities/EntityClassifier.h>
 #include <Features/Common/InWorldPanelsPerHookState.h>
 #include <Features/Common/RenderingHookEntityLoop.h>
@@ -42,8 +43,8 @@
 #include <CS2/Classes/ConVarTypes.h>
 
 struct FullGlobalContext {
-    FullGlobalContext(PeepEventsHook peepEventsHook, DynamicLibrary clientDLL, DynamicLibrary panoramaDLL, const MemoryPatterns& memoryPatterns, Tier0Dll tier0Dll) noexcept
-        : patternSearchResults{memoryPatterns}
+    FullGlobalContext(PeepEventsHook peepEventsHook, DynamicLibrary clientDLL, DynamicLibrary panoramaDLL, DynamicLibrary worldRendererDLL, const MemoryPatterns& memoryPatterns, Tier0Dll tier0Dll) noexcept
+        : worldRendererDLL{WorldRendererDll{}}, patternSearchResults{memoryPatterns}
         , fileNameSymbolTableState{tier0Dll}
         , memAllocState{tier0Dll}
         , stylePropertySymbolsAndVMTs{StylePropertySymbolMap{patternSearchResults.get<PointerToStylePropertySymbols>()}, VmtFinder{panoramaDLL.getVmtFinderParams()}}
@@ -55,6 +56,7 @@ struct FullGlobalContext {
     }
 
     OsirisDirectoryPath osirisDirectoryPath;
+    WorldRendererDll worldRendererDLL;
     ConfigState configState;
     AllMemoryPatternSearchResults patternSearchResults;
     FileNameSymbolTableState fileNameSymbolTableState;
