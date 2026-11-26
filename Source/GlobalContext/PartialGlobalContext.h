@@ -21,7 +21,6 @@ struct PartialGlobalContext {
             PatternFinder<PatternNotFoundLogger>{DynamicLibrary{cs2::SCENESYSTEM_DLL}.getCodeSection().raw()}}
         , clientDLL{clientDLL}
         , panoramaDLL{panoramaDLL}
-        , worldRendererDLL{cs2::WORLDRENDERER_DLL}
         , peepEventsHook{MemoryPatterns{patternFinders}.sdlPatterns().peepEventsPointer(sdlDLL.peepEvents())}
     {
     }
@@ -29,7 +28,6 @@ struct PartialGlobalContext {
     PatternFinders patternFinders;
     DynamicLibrary clientDLL;
     DynamicLibrary panoramaDLL;
-    DynamicLibrary worldRendererDLL;
     PeepEventsHook peepEventsHook;
 
     void enableIfValid() noexcept
