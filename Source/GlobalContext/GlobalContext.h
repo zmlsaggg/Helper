@@ -84,7 +84,6 @@ public:
             partialContext.peepEventsHook,
             partialContext.clientDLL,
             partialContext.panoramaDLL,
-            partialContext.worldRendererDLL,
             MemoryPatterns{partialContext.patternFinders},
             Tier0Dll{}
         );
