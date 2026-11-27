@@ -1,11 +1,9 @@
 #pragma once
 
 #include <Config/ConfigVariable.h>
-#include <Config/ConfigVariableTypes.h>
-#include <HookContext/HookContextMacros.h>
 
 namespace fly_vars {
-    using Enabled = config::BooleanConfigVariable<"FlyEnabled">;
-    using SpeedMultiplier = config::FloatConfigVariable<"FlySpeedMultiplier">;
-    using FlyKey = config::EnumConfigVariable<"FlyKey">;
+    CONFIG_VARIABLE(Enabled, bool, false);
+    CONFIG_VARIABLE(SpeedMultiplier, float, 1.0f);
+    CONFIG_VARIABLE(FlyKey, int, 0); // 0=Shift, 1=Ctrl, 2=Alt
 }

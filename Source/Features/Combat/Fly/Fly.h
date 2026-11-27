@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Features/Combat/Fly/FlyConfigVariables.h>
-#include <Input/Input.h>
+#include <Windows.h>
+#include <cmath>
 
 template <typename HookContext>
 class Fly {
@@ -20,28 +21,50 @@ public:
         if (!playerPawn.hasValue())
             return;
 
-        auto& input = hookContext.input();
+        const auto key = flyKey();
+        bool keyDown = false;
 
-        // Check if the fly key is being held
-        if (input.isKeyDown(flyKey()))
-        {
-            // Set velocity to 0 to allow flying
-            playerPawn.velocity().setX(0);
-            playerPawn.velocity().setY(0);
-            playerPawn.velocity().setZ(0);
+        switch (key) {
+        case 0: keyDown = (GetAsyncKeyState(VK_LSHIFT) & 0x8000) || (GetAsyncKeyState(VK_RSHIFT) & 0x8000); break;
+        case 1: keyDown = (GetAsyncKeyState(VK_LCONTROL) & 0x8000) || (GetAsyncKeyState(VK_RCONTROL) & 0x8000); break;
+        case 2: keyDown = (GetAsyncKeyState(VK_LMENU) & 0x8000) || (GetAsyncKeyState(VK_RMENU) & 0x8000); break;
+        }
 
-            // Get the fly speed
-            const auto speed = speedMultiplier();
+        if (!keyDown)
+            return;
 
-            // Get movement input
-            const auto forward = input.forwardInput();
-            const auto right = input.rightInput();
-            const auto up = input.upInput();
+        auto& pawn = *playerPawn.value();
+        const auto speed = speedMultiplier();
 
-            // Calculate velocity based on input and speed
-            playerPawn.velocity().setX(right * speed);
-            playerPawn.velocity().setY(forward * speed);
-            playerPawn.velocity().setZ(up * speed);
+        float forward = 0, right = 0, up = 0;
+        if (GetAsyncKeyState('W') & 0x8000) forward = 1;
+        if (GetAsyncKeyState('S') & 0x8000) forward = -1;
+        if (GetAsyncKeyState('D') & 0x8000) right = 1;
+        if (GetAsyncKeyState('A') & 0x8000) right = -1;
+        if (GetAsyncKeyState(VK_SPACE) & 0x8000) up = 1;
+
+        // Get the player's yaw from the view angles
+        auto& playerController = hookContext.localPlayerController();
+        float yaw = 0;
+        auto* controllerPtr = reinterpret_cast<cs2::CCSPlayerController*>(&playerController);
+        if (controllerPtr) {
+            // m_vecViewAngles offset in CCSPlayerController
+            yaw = *reinterpret_cast<float*>(reinterpret_cast<char*>(controllerPtr) + 0x108);
+        }
+
+        float cosYaw = cosf(yaw * 3.14159265f / 180.0f);
+        float sinYaw = sinf(yaw * 3.14159265f / 180.0f);
+
+        float vx = (right * cosYaw - forward * sinYaw) * speed * 300.0f;
+        float vy = (right * sinYaw + forward * cosYaw) * speed * 300.0f;
+        float vz = up * speed * 200.0f;
+
+        // Write velocity directly to the pawn entity at offset 0x1B0
+        auto* velocityPtr = *reinterpret_cast<float**>(reinterpret_cast<char*>(&pawn) + 0x1B0);
+        if (velocityPtr) {
+            velocityPtr[0] = vx;
+            velocityPtr[1] = vy;
+            velocityPtr[2] = vz;
         }
     }
 
@@ -51,12 +74,12 @@ private:
         return GET_CONFIG_VAR(fly_vars::Enabled);
     }
 
-    [[nodiscard]] auto flyKey() const noexcept
+    [[nodiscard]] int flyKey() const noexcept
     {
-        return static_cast<Input::Key>(GET_CONFIG_VAR(fly_vars::FlyKey));
+        return GET_CONFIG_VAR(fly_vars::FlyKey);
     }
 
-    [[nodiscard]] auto speedMultiplier() const noexcept
+    [[nodiscard]] float speedMultiplier() const noexcept
     {
         return GET_CONFIG_VAR(fly_vars::SpeedMultiplier);
     }
