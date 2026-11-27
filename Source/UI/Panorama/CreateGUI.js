@@ -151,6 +151,14 @@ $.Osiris = (function () {
     });
 
     $.CreatePanel('Label', soundTabButton, '', { text: "Sound", style: "color: #f8e5f4; font-weight: bold;" });
+    
+    var autoChatTabButton = $.CreatePanel('RadioButton', centerContainer, 'auto_chat_button', {
+      group: "SettingsNavBar",
+      class: "content-navbar__tabs__btn",
+      onactivate: "$.Osiris.navigateToTab('auto_chat');"
+    });
+
+    $.CreatePanel('Label', autoChatTabButton, '', { text: "Auto Chat", style: "color: #f8e5f4; font-weight: bold;" });
 
     var rightContainer = $.CreatePanel('Panel', navbar, '', {
         style: "horizontal-align: right; flow-children: right; height: 100%; margin-right: 70px;"
@@ -563,7 +571,167 @@ u8R"(
   separator(time);
   createYesNoDropDown(time, "Show Post-round Timer", 'hud', 'postround_timer');
 
-  var visuals = createVisualsTab();
+  var autoChat = createTab('auto_chat');
+
+  var autoChatState = {
+    enabled: false,
+    interval: 30,
+    channel: 'say',
+    generation: 0
+  };
+
+  var autoChatStatus = $.CreatePanel('Label', autoChat, '', {
+    text: 'Status: Off',
+    style: 'font-size: 18px; color: #f4d7ed; margin-bottom: 10px;'
+  });
+
+  var autoChatSection = createSection(autoChat, 'Auto Chat');
+  $.CreatePanel('Label', autoChatSection, '', {
+    text: 'Sends one user-entered phrase at a conservative interval. Disabled by default.',
+    style: 'color: #d7b8cf; margin-bottom: 10px;'
+  });
+
+  var autoChatPhraseContainer = $.CreatePanel('Panel', autoChatSection, '', {
+    class: 'SettingsMenuDropdownContainer'
+  });
+
+  $.CreatePanel('Label', autoChatPhraseContainer, '', {
+    class: 'half-width',
+    text: 'Phrase'
+  });
+
+  var autoChatPhrase = $.CreatePanel('TextEntry', autoChatPhraseContainer, 'AutoChatPhrase', {
+    maxchars: '127',
+    style: 'width: 420px; margin-left: 10px; padding-left: 10px; color: #ffe8f8ff; font-size: 18px; border: 2px solid #f064b655;'
+  });
+  autoChatPhrase.text = 'GLHF';
+
+  separator(autoChatSection);
+
+  var autoChatIntervalContainer = $.CreatePanel('Panel', autoChatSection, '', {
+    class: 'SettingsMenuDropdownContainer'
+  });
+  $.CreatePanel('Label', autoChatIntervalContainer, '', {
+    class: 'half-width',
+    text: 'Interval'
+  });
+
+  var autoChatInterval = $.CreatePanel('CSGOSettingsEnumDropDown', autoChatIntervalContainer, 'AutoChatInterval', {
+    class: 'PopupButton White'
+  });
+  var autoChatIntervals = [10, 30, 60, 120];
+  for (let i = 0; i < autoChatIntervals.length; ++i) {
+    autoChatInterval.AddOption($.CreatePanel('Label', autoChatInterval, i, {
+      value: i,
+      text: autoChatIntervals[i] + ' seconds'
+    }));
+  }
+  autoChatInterval.SetPanelEvent('oninputsubmit', function () {
+    var selected = autoChatInterval.GetSelectedIndex ? autoChatInterval.GetSelectedIndex() : 1;
+    if (selected >= 0 && selected < autoChatIntervals.length)
+      autoChatState.interval = autoChatIntervals[selected];
+  });
+
+  separator(autoChatSection);
+
+  var autoChatChannelContainer = $.CreatePanel('Panel', autoChatSection, '', {
+    class: 'SettingsMenuDropdownContainer'
+  });
+  $.CreatePanel('Label', autoChatChannelContainer, '', {
+    class: 'half-width',
+    text: 'Channel'
+  });
+
+  var autoChatChannel = $.CreatePanel('CSGOSettingsEnumDropDown', autoChatChannelContainer, 'AutoChatChannel', {
+    class: 'PopupButton White'
+  });
+  autoChatChannel.AddOption($.CreatePanel('Label', autoChatChannel, 0, {
+    value: 0,
+    text: 'All chat'
+  }));
+  autoChatChannel.AddOption($.CreatePanel('Label', autoChatChannel, 1, {
+    value: 1,
+    text: 'Team chat'
+  }));
+
+  var autoChatSend = $.CreatePanel('Button', autoChatSection, 'AutoChatSendNow', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin-top: 10px; padding: 8px 14px;'
+  });
+  $.CreatePanel('Label', autoChatSend, '', {
+    text: 'Send once',
+    style: 'color: #fff0fb; font-weight: bold;'
+  });
+
+  var autoChatToggle = $.CreatePanel('Button', autoChatSection, 'AutoChatToggle', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin-left: 8px; margin-top: 10px; padding: 8px 14px;'
+  });
+  var autoChatToggleLabel = $.CreatePanel('Label', autoChatToggle, '', {
+    text: 'Start Auto Chat',
+    style: 'color: #fff0fb; font-weight: bold;'
+  });
+
+  var sanitizeAutoChatPhrase = function (value) {
+    return (value || '').replace(/[\\r\\n;"']/g, '').slice(0, 127);
+  };
+
+  var sendAutoChat = function () {
+    var phrase = sanitizeAutoChatPhrase(autoChatPhrase.text);
+    if (!phrase.length)
+      return false;
+
+    var channel = autoChatState.channel;
+    GameInterfaceAPI.ConsoleCommand(channel + ' "' + phrase + '"');
+    return true;
+  };
+
+  var scheduleAutoChat = function (generation) {
+    $.Schedule(autoChatState.interval, function () {
+      if (!autoChatState.enabled || generation !== autoChatState.generation)
+        return;
+
+      sendAutoChat();
+      scheduleAutoChat(generation);
+    });
+  };
+
+  var setAutoChatEnabled = function (enabled) {
+    autoChatState.generation++;
+    autoChatState.enabled = enabled;
+    autoChatToggleLabel.text = enabled ? 'Stop Auto Chat' : 'Start Auto Chat';
+    autoChatStatus.text = enabled ? 'Status: On — next message in ' + autoChatState.interval + 's' : 'Status: Off';
+
+    if (enabled)
+      scheduleAutoChat(autoChatState.generation);
+  };
+
+  autoChatSend.SetPanelEvent('onactivate', function () {
+    var phrase = sanitizeAutoChatPhrase(autoChatPhrase.text);
+    if (!phrase.length) {
+      autoChatStatus.text = 'Status: Enter a phrase first';
+      return;
+    }
+    sendAutoChat();
+    autoChatStatus.text = 'Status: Sent once';
+  });
+
+  autoChatToggle.SetPanelEvent('onactivate', function () {
+    setAutoChatEnabled(!autoChatState.enabled);
+  });
+
+  autoChatChannel.SetPanelEvent('oninputsubmit', function () {
+    var selected = autoChatChannel.GetSelectedIndex ? autoChatChannel.GetSelectedIndex() : 0;
+    autoChatState.channel = selected === 1 ? 'say_team' : 'say';
+  });
+
+  var autoChatHint = $.CreatePanel('Label', autoChat, '', {
+    text: 'Safety: minimum interval 10s; no automatic enable; stopping immediately cancels future sends.',
+    style: 'color: #b994ae; margin-top: 12px;'
+  });
+
+  separator(autoChat);
+    var visuals = createVisualsTab();
 
   var playerInfoTab = createSubTab(visuals, 'player_info');
 
