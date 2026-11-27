@@ -8,7 +8,7 @@ $.Osiris = (function () {
       const rootPanel = $.CreatePanel('Panel', $.GetContextPanel(), 'OsirisMenuTab', {
         class: "mainmenu-content__container",
         useglobalcontext: "true",
-        style: "background-color: #0a130d; border: 1px solid #1d5635;"
+        style: "background-color: #07110df5; border: 1px solid #35c878; box-shadow: 0px 0px 18px #000000cc;"
       });
 
       rootPanel.visible = false;
@@ -83,7 +83,7 @@ $.Osiris = (function () {
   var createNavbar = function () {
     var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel, '', {
       class: "content-navbar__tabs content-navbar__tabs--noflow",
-      style: "background-color: gradient(linear, 0% 0%, 0% 100%, from(#183523), to(#0c1710)); border-bottom: 1px solid #35c878;"
+      style: "background-color: #09150ff5; border-bottom: 1px solid #35c878;"
     });
 
     var leftContainer = $.CreatePanel('Panel', navbar, '', {
@@ -174,7 +174,7 @@ $.Osiris = (function () {
   var createVisualsNavbar = function () {
     var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel.FindChildInLayoutFile('visuals'), '', {
       class: "content-navbar__tabs content-navbar__tabs--dark content-navbar__tabs--noflow",
-      style: "background-color: #102017; border-bottom: 1px solid #27794a;"
+      style: "background-color: #0b1712f5; border-bottom: 1px solid #35c878;"
     });
 
     var centerContainer = $.CreatePanel('Panel', navbar, '', {
@@ -187,7 +187,7 @@ $.Osiris = (function () {
       onactivate: "$.Osiris.navigateToSubTab('visuals', 'player_info');"
     });
 
-    $.CreatePanel('Label', playerInfoTabButton, '', { text: "Player Info In World", style: "color: #c3e9d0;" });
+    $.CreatePanel('Label', playerInfoTabButton, '', { text: "Player Info In World", style: "color: #e4f7eb; font-weight: bold; font-size: 15px;" });
 
     var outlineGlowTabButton = $.CreatePanel('RadioButton', centerContainer, 'outline_glow_button', {
       group: "VisualsNavBar",
@@ -195,7 +195,7 @@ $.Osiris = (function () {
       onactivate: "$.Osiris.navigateToSubTab('visuals', 'outline_glow');"
     });
 
-    $.CreatePanel('Label', outlineGlowTabButton, '', { text: "Outline Glow", style: "color: #c3e9d0;" });
+    $.CreatePanel('Label', outlineGlowTabButton, '', { text: "Outline Glow", style: "color: #e4f7eb; font-weight: bold; font-size: 15px;" });
 
     var modelGlowTabButton = $.CreatePanel('RadioButton', centerContainer, 'model_glow_button', {
         group: "VisualsNavBar",
@@ -203,7 +203,7 @@ $.Osiris = (function () {
         onactivate: "$.Osiris.navigateToSubTab('visuals', 'model_glow');"
     });
 
-    $.CreatePanel('Label', modelGlowTabButton, '', { text: "Model Glow", style: "color: #c3e9d0;" });
+    $.CreatePanel('Label', modelGlowTabButton, '', { text: "Model Glow", style: "color: #e4f7eb; font-weight: bold; font-size: 15px;" });
   
     var viewmodelTabButton = $.CreatePanel('RadioButton', centerContainer, 'viewmodel_button', {
         group: "VisualsNavBar",
@@ -211,7 +211,7 @@ $.Osiris = (function () {
         onactivate: "$.Osiris.navigateToSubTab('visuals', 'viewmodel');"
     });
 
-    $.CreatePanel('Label', viewmodelTabButton, '', { text: "Viewmodel", style: "color: #c3e9d0;" });
+    $.CreatePanel('Label', viewmodelTabButton, '', { text: "Viewmodel", style: "color: #e4f7eb; font-weight: bold; font-size: 15px;" });
   };
 
   var createCombatNavbar = function () {
@@ -297,7 +297,7 @@ $.Osiris = (function () {
   var createSection = function(tab, sectionName) {
     var background = $.CreatePanel('Panel', tab, '', {
       class: "SettingsBackground",
-      style: "background-color: gradient(linear, 0% 0%, 0% 100%, from(#172b1e), to(#0d1711)); border: 1px solid #244d34; border-radius: 4px;"
+      style: "background-color: #101d17f5; border: 1px solid #326b49; border-radius: 5px; box-shadow: 0px 2px 8px #00000088;"
     });
 
     var titleContainer = $.CreatePanel('Panel', background, '', {
