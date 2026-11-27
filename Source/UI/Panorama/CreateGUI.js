@@ -233,6 +233,72 @@ $.Osiris = (function () {
     $.CreatePanel('Label', sniperRiflesTabButton, '', { text: "Sniper rifles", style: "color: #f4d7ed;" });
   };
 
+  // Decorative sunset scene: built from Panorama panels so it ships with the menu
+  // and does not depend on external files or runtime downloads.
+  var createSunsetBackdrop = function () {
+    var scene = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SunsetBackdrop', {
+      hittest: 'false',
+      style: "position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
+    });
+
+    var sun = $.CreatePanel('Panel', scene, 'SunsetDisc', {
+      hittest: 'false',
+      style: "position: 0px 0px 0px; horizontal-align: center; vertical-align: center; margin-top: -150px; width: 190px; height: 190px; border-radius: 50%; background-color: #ffb078; box-shadow: 0px 0px 42px #ff8a9b88;"
+    });
+
+    var distantHills = $.CreatePanel('Panel', scene, 'SunsetDistantHills', {
+      hittest: 'false',
+      style: "position: 0px 0px 0px; width: 100%; height: 34%; vertical-align: bottom; background-color: #542b58dd;"
+    });
+
+    var village = $.CreatePanel('Panel', scene, 'SunsetVillageSilhouette', {
+      hittest: 'false',
+      style: "position: 0px 0px 0px; width: 100%; height: 22%; vertical-align: bottom; background-color: #171526f2;"
+    });
+
+    var buildings = [
+      { x: "4%", w: "7%", h: "48%" }, { x: "13%", w: "5%", h: "72%" },
+      { x: "21%", w: "9%", h: "56%" }, { x: "33%", w: "6%", h: "84%" },
+      { x: "42%", w: "8%", h: "60%" }, { x: "54%", w: "6%", h: "76%" },
+      { x: "64%", w: "9%", h: "52%" }, { x: "77%", w: "6%", h: "70%" },
+      { x: "87%", w: "9%", h: "58%" }
+    ];
+    for (var i = 0; i < buildings.length; ++i) {
+      var building = $.CreatePanel('Panel', village, 'SunsetBuilding' + i, {
+        hittest: 'false',
+        style: "position: 0px 0px 0px; x: " + buildings[i].x + "; width: " + buildings[i].w + "; height: " + buildings[i].h + "; vertical-align: bottom; background-color: #100f20;"
+      });
+      $.CreatePanel('Panel', building, '', {
+        hittest: 'false',
+        style: "width: 100%; height: 5px; vertical-align: top; background-color: #f08a9b66;"
+      });
+    }
+
+    var foreground = $.CreatePanel('Panel', scene, 'SunsetForeground', {
+      hittest: 'false',
+      style: "position: 0px 0px 0px; width: 100%; height: 5%; vertical-align: bottom; background-color: #0c0d19;"
+    });
+
+    var fireflies = [];
+    for (var j = 0; j < 5; ++j) {
+      fireflies.push($.CreatePanel('Panel', scene, 'SunsetFirefly' + j, {
+        hittest: 'false',
+        style: "position: 0px 0px 0px; x: " + (12 + j * 17) + "%; y: " + (48 + (j % 3) * 7) + "%; width: 4px; height: 4px; border-radius: 50%; background-color: #ffd8a8; opacity: 0.25;"
+      }));
+    }
+
+    var bright = false;
+    var animateFireflies = function () {
+      bright = !bright;
+      for (var k = 0; k < fireflies.length; ++k)
+        fireflies[k].style.opacity = ((k % 2 === 0) === bright) ? 0.9 : 0.2;
+      $.Schedule(1.1, animateFireflies);
+    };
+    $.Schedule(1.1, animateFireflies);
+  };
+
+  createSunsetBackdrop();
+
   createNavbar();
 
   var settingContent = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SettingsMenuContent', {
