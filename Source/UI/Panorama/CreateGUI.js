@@ -725,6 +725,29 @@ u8R"(
     style: "width: 700px; height: 400px;"
   });
   viewmodelPreview.SetHideStaticGeometry(true);
+  viewmodelPreview.SetItemItemId(makeFauxItemId(16, 0), {});
+
+  // Local preview only: this selector changes the item rendered in the menu preview.
+  // It does not modify the equipped weapon or the live game model.
+  var previewModelSelector = $.CreatePanel('Panel', viewmodelPreviewContainer, '', {
+    style: 'flow-children: right; horizontal-align: center; margin-top:: 8px;'
+  });
+
+  var setPreviewModel = function (label, defIndex) {
+    var button = $.CreatePanel('Button', previewModelSelector, '', {
+      class: 'content-navbar__tabs__btn',
+      style: 'margin: 3px; padding: 5px 10px; background-color: #10251a; border: 1px solid #35c87888;'
+    });
+    $.CreatePanel('Label', button, '', { text: label, style: 'color: #e4f7eb; font-weight: bold;' });
+    button.SetPanelEvent('onactivate', function () {
+      viewmodelPreview.SetItemItemId(makeFauxItemId(defIndex, 0), {});
+    });
+  };
+
+  setPreviewModel('M4A4', 16);
+  setPreviewModel('AK-47', 7);
+  setPreviewModel('AWP', 9);
+  setPreviewModel('Knife', 42);
 
   var viewmodelTab = $.CreatePanel('Panel', _viewmodelTab, '', { style: 'flow-children: down; margin-right: 40px; overflow: squish scroll;' });
 
