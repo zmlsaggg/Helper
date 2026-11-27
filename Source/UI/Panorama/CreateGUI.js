@@ -616,21 +616,28 @@ u8R"(
     text: 'Interval'
   });
 
-  var autoChatInterval = $.CreatePanel('CSGOSettingsEnumDropDown', autoChatIntervalContainer, 'AutoChatInterval', {
-    class: 'PopupButton White'
+  var autoChatIntervalButtons = $.CreatePanel('Panel', autoChatIntervalContainer, '', {
+    style: 'flow-children: right;'
   });
   var autoChatIntervals = [10, 30, 60, 120];
   for (let i = 0; i < autoChatIntervals.length; ++i) {
-    autoChatInterval.AddOption($.CreatePanel('Label', autoChatInterval, i, {
-      value: i,
-      text: autoChatIntervals[i] + ' seconds'
-    }));
+    (function (seconds) {
+      var button = $.CreatePanel('Button', autoChatIntervalButtons, '', {
+        class: 'content-navbar__tabs__btn',
+        style: 'margin: 2px; padding: 5px 9px;'
+      });
+      $.CreatePanel('Label', button, '', {
+        text: seconds + 's',
+        style: 'color: #fff0fb; font-weight: bold;'
+      });
+      button.SetPanelEvent('onactivate', function () {
+        autoChatState.interval = seconds;
+        autoChatStatus.text = autoChatState.enabled
+          ? 'Status: On — next message in ' + autoChatState.interval + 's'
+          : 'Status: Off — interval ' + autoChatState.interval + 's';
+      });
+    })(autoChatIntervals[i]);
   }
-  autoChatInterval.SetPanelEvent('oninputsubmit', function () {
-    var selected = autoChatInterval.GetSelectedIndex ? autoChatInterval.GetSelectedIndex() : 1;
-    if (selected >= 0 && selected < autoChatIntervals.length)
-      autoChatState.interval = autoChatIntervals[selected];
-  });
 
   separator(autoChatSection);
 
@@ -642,17 +649,37 @@ u8R"(
     text: 'Channel'
   });
 
-  var autoChatChannel = $.CreatePanel('CSGOSettingsEnumDropDown', autoChatChannelContainer, 'AutoChatChannel', {
-    class: 'PopupButton White'
+  var autoChatChannelButtons = $.CreatePanel('Panel', autoChatChannelContainer, '', {
+    style: 'flow-children: right;'
   });
-  autoChatChannel.AddOption($.CreatePanel('Label', autoChatChannel, 0, {
-    value: 0,
-    text: 'All chat'
-  }));
-  autoChatChannel.AddOption($.CreatePanel('Label', autoChatChannel, 1, {
-    value: 1,
-    text: 'Team chat'
-  }));
+
+  var allChatButton = $.CreatePanel('Button', autoChatChannelButtons, '', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin: 2px; padding: 5px 9px;'
+  });
+  $.CreatePanel('Label', allChatButton, '', {
+    text: 'All chat',
+    style: 'color: #fff0fb; font-weight: bold;'
+  });
+  allChatButton.SetPanelEvent('onactivate', function () {
+    autoChatState.channel = 'say';
+    autoChatStatus.text = autoChatState.enabled ? 'Status: On — All chat' : 'Status: Off — All chat';
+  });
+
+  var teamChatButton = $.CreatePanel('Button', autoChatChannelButtons, '', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin: 2px; padding: 5px 9px;'
+  });
+  $.CreatePanel('Label', teamChatButton, '', {
+    text: 'Team chat',
+    style: 'color: #fff0fb; font-weight: bold;'
+  });
+  teamChatButton.SetPanelEvent('onactivate', function () {
+    autoChatState.channel = 'say_team';
+    autoChatStatus.text = autoChatState.enabled ? 'Status: On — Team chat' : 'Status: Off — Team chat';
+  });
+
+  separator(autoChatSection);
 
   var autoChatSend = $.CreatePanel('Button', autoChatSection, 'AutoChatSendNow', {
     class: 'content-navbar__tabs__btn',
