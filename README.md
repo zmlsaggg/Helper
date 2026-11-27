@@ -1,9 +1,9 @@
-# Osiris
+# zmlsag
 
-[![Windows](https://github.com/danielkrupinski/Osiris/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/danielkrupinski/Osiris/actions/workflows/windows.yml)
-[![Linux](https://github.com/danielkrupinski/Osiris/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/danielkrupinski/Osiris/actions/workflows/linux.yml)
+[![Windows](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml)
+[![Linux](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml)
 
-Cross-platform (Windows, Linux) game hack for **Counter-Strike 2** with GUI and rendering based on game's Panorama UI. Compatible with the latest game update on Steam.
+**zmlsag** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base while using its own green visual identity.
 
 ## What's new
 
@@ -98,4 +98,4 @@ In a configuration file `default.cfg` inside `%appdata%\OsirisCS2\configs` direc
 
 > Copyright (c) 2018-2026 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/danielkrupinski/Osiris/blob/master/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/zmlsaggg/Helper/blob/master/LICENSE) file for details.
