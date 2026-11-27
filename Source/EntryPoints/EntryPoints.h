@@ -3,6 +3,8 @@
 #include "GlobalContext/GlobalContext.h"
 #include "Hooks/PeepEventsHook.h"
 #include "Utils/ReturnAddress.h"
+#include "Features/Visuals/Wallhack/Wallhack.h"
+#include "Features/Combat/Fly/Fly.h"
 
 [[NOINLINE]] void finishInit(auto& hookContext)
 {
@@ -74,6 +76,8 @@ void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept
     SoundFeatures{hookContext.soundWatcherState(), hookContext.hooks().viewRenderHook, hookContext}.runOnViewMatrixUpdate();
 
     hookContext.make<NoScopeInaccuracyVis>().update();
+    hookContext.make<Wallhack>().onFrame();
+    hookContext.make<Fly>().onFrame();
     hookContext.make<RenderingHookEntityLoop>().run();
     hookContext.make<GlowSceneObjects>().removeUnreferencedObjects();
     hookContext.make<DefusingAlert>().run();

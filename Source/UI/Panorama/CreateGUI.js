@@ -220,6 +220,14 @@ $.Osiris = (function () {
     });
 
     $.CreatePanel('Label', viewmodelTabButton, '', { text: "Viewmodel", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
+
+    var wallhackTabButton = $.CreatePanel('RadioButton', centerContainer, 'wallhack_button', {
+        group: "VisualsNavBar",
+        class: "content-navbar__tabs__btn",
+        onactivate: "$.Osiris.navigateToSubTab('visuals', 'wallhack');"
+    });
+
+    $.CreatePanel('Label', wallhackTabButton, '', { text: "Wallhack", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
   };
 
   var createCombatNavbar = function () {
@@ -552,6 +560,14 @@ u8R"(
   separator(noScope);
   createYesNoDropDown(noScope, "Visualize Inaccuracy When Not Using a Scope", 'combat', 'no_scope_inacc_vis');
 
+  var flyTab = createSubTab(combat, 'fly');
+  var flySection = createSection(flyTab, 'Fly');
+  createOnOffDropDown(flySection, "Enable Fly", 'combat', 'fly_enabled');
+  separator(flySection);
+  createHueSlider(flySection, "Fly Speed Multiplier", 'fly_speed_multiplier', 0.5, 5.0);
+  separator(flySection);
+  createDropDown(flySection, "Fly Key", 'combat', 'fly_key', ['Left Shift', 'Right Shift', 'Left Ctrl', 'Right Ctrl', 'Left Alt', 'Right Alt']);
+
   $.Osiris.navigateToSubTab('combat', 'sniper_rifles');
 
   var hud = createTab('hud');
@@ -792,6 +808,10 @@ u8R"(
   createYesNoDropDown(playerIcons, 'Show Rescuing Hostage Icon', 'visuals', 'player_info_hostage_rescue');
   separator(playerIcons);
   createYesNoDropDown(playerIcons, 'Show Blinded By Flashbang Icon', 'visuals', 'player_info_blinded');
+
+  var wallhackTab = createSubTab(visuals, 'wallhack');
+  var wallhackSection = createSection(wallhackTab, 'Wallhack');
+  createOnOffDropDown(wallhackSection, "Enable Wallhack", 'visuals', 'wallhack_enabled');
 
   var outlineGlowTab = createSubTab(visuals, 'outline_glow');
 
