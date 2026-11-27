@@ -166,7 +166,7 @@ private:
         setDropDownSelectedIndex(mainMenu, "player_outline_glow", playerOutlineGlowDropDownIndex());
         setDropDownSelectedIndex(mainMenu, "player_outline_glow_color", static_cast<int>(GET_CONFIG_VAR(outline_glow_vars::PlayerGlowColorMode)));
         setDropDownSelectedIndex(mainMenu, "weapon_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowWeapons));
-        setDropDownSelectedIndex(mainMenu, "grenade_proj_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowWeapons));
+        setDropDownSelectedIndex(mainMenu, "grenade_proj_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowGrenadeProjectiles));
         setDropDownSelectedIndex(mainMenu, "dropped_bomb_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowDroppedBomb));
         setDropDownSelectedIndex(mainMenu, "ticking_bomb_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowTickingBomb));
         setDropDownSelectedIndex(mainMenu, "defuse_kit_outline_glow", !GET_CONFIG_VAR(outline_glow_vars::GlowDefuseKits));
