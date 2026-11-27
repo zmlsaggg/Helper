@@ -730,7 +730,7 @@ u8R"(
   // Local preview only: this selector changes the item rendered in the menu preview.
   // It does not modify the equipped weapon or the live game model.
   var previewModelSelector = $.CreatePanel('Panel', viewmodelPreviewContainer, '', {
-    style: 'flow-children: right; horizontal-align: center; margin-top:: 8px;'
+    style: 'flow-children: right; horizontal-align: center; margin-top: 8px;'
   });
 
   var setPreviewModel = function (label, defIndex) {
