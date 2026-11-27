@@ -919,7 +919,9 @@ u8R"(
   var grenadeModelGlowPreviewRow2 = $.CreatePanel('Panel', grenadeModelGlowPreview, '', { style: 'flow-children: right;' });
   createGrenadeModelGlowPreview(grenadeModelGlowPreviewRow2, 'ModelGlowPreviewSmoke', 45);
   createGrenadeModelGlowPreview(grenadeModelGlowPreviewRow2, 'ModelGlowPreviewIncendiary', 48);
-
+)"
+// split the string literal because MSVC does not support string literals longer than 16k chars - error C2026
+u8R"(
   var modelGlowTab = $.CreatePanel('Panel', _modelGlowTab, '', { style: 'flow-children: down; margin-right: 40px; overflow: squish scroll;' });
 
   var modelGlow = createSection(modelGlowTab, 'Model Glow');
