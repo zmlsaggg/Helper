@@ -793,27 +793,131 @@ u8R"(
   viewmodelPreview.SetHideStaticGeometry(true);
   viewmodelPreview.SetItemItemId(makeFauxItemId(16, 0), {});
 
-  // Local preview only: this selector changes the item rendered in the menu preview.
-  // It does not modify the equipped weapon or the live game model.
+  // Local preview only: these controls change the menu preview and never equip items in a live match.
   var previewModelSelector = $.CreatePanel('Panel', viewmodelPreviewContainer, '', {
-    style: 'flow-children: right; horizontal-align: center; margin-top: 8px;'
+    style: 'flow-children: down; width: 700px; margin-top: 8px;'
   });
 
-  var setPreviewModel = function (label, defIndex) {
-    var button = $.CreatePanel('Button', previewModelSelector, '', {
+  var previewCategoryButtons = $.CreatePanel('Panel', previewModelSelector, '', {
+    style: 'flow-children: right; horizontal-align: center;'
+  });
+  var previewCategoryContent = $.CreatePanel('Panel', previewModelSelector, '', {
+    style: 'width: 100%; max-height: 210px; overflow: squish scroll;'
+  });
+
+  var previewCategories = [];
+  var selectPreviewCategory = function (selectedIndex) {
+    for (var i = 0; i < previewCategories.length; ++i)
+      previewCategories[i].panel.visible = i === selectedIndex;
+  };
+
+  var addPreviewCategory = function (label, items) {
+    var index = previewCategories.length;
+    var categoryButton = $.CreatePanel('Button', previewCategoryButtons, '', {
       class: 'content-navbar__tabs__btn',
       style: 'margin: 3px; padding: 5px 10px; background-color: #2a1730; border: 1px solid #f064b688;'
     });
-    $.CreatePanel('Label', button, '', { text: label, style: 'color: #fff0fb; font-weight: bold;' });
-    button.SetPanelEvent('onactivate', function () {
-      viewmodelPreview.SetItemItemId(makeFauxItemId(defIndex, 0), {});
+    $.CreatePanel('Label', categoryButton, '', {
+      text: label,
+      style: 'color: #fff0fb; font-weight: bold;'
     });
+
+    var categoryPanel = $.CreatePanel('Panel', previewCategoryContent, '', {
+      style: 'width: 100%; flow-children: right;'
+    });
+    previewCategories.push({ panel: categoryPanel });
+    categoryButton.SetPanelEvent('onactivate', function () { selectPreviewCategory(index); });
+
+    for (var j = 0; j < items.length; ++j) {
+      (function (item) {
+        var itemButton = $.CreatePanel('Button', categoryPanel, '', {
+          class: 'content-navbar__tabs__btn',
+          style: 'margin: 3px; padding: 5px 9px; background-color: #211329; border: 1px solid #78406e;'
+        });
+        $.CreatePanel('Label', itemButton, '', {
+          text: item.label,
+          style: 'color: #fff0fb; font-weight: bold;'
+        });
+        itemButton.SetPanelEvent('onactivate', function () {
+          viewmodelPreview.SetItemItemId(makeFauxItemId(item.defIndex, item.paintKit || 0), {});
+        });
+      })(items[j]);
+    }
   };
 
-  setPreviewModel('M4A4', 16);
-  setPreviewModel('AK-47', 7);
-  setPreviewModel('AWP', 9);
-  setPreviewModel('Knife', 42);
+  addPreviewCategory('Rifles', [
+    { label: 'AK-47', defIndex: 7 },
+    { label: 'M4A4', defIndex: 16 },
+    { label: 'M4A1-S', defIndex: 60 },
+    { label: 'Galil AR', defIndex: 13 },
+    { label: 'FAMAS', defIndex: 10 },
+    { label: 'AUG', defIndex: 8 },
+    { label: 'SG 553', defIndex: 39 }
+  ]);
+
+  addPreviewCategory('Snipers', [
+    { label: 'AWP', defIndex: 9 },
+    { label: 'SSG 08', defIndex: 40 },
+    { label: 'SCAR-20', defIndex: 38 },
+    { label: 'G3SG1', defIndex: 11 }
+  ]);
+
+  addPreviewCategory('SMGs & Heavy', [
+    { label: 'MP9', defIndex: 34 },
+    { label: 'MAC-10', defIndex: 17 },
+    { label: 'MP7', defIndex: 33 },
+    { label: 'MP5-SD', defIndex: 23 },
+    { label: 'UMP-45', defIndex: 24 },
+    { label: 'P90', defIndex: 19 },
+    { label: 'PP-Bizon', defIndex: 26 },
+    { label: 'Nova', defIndex: 35 },
+    { label: 'XM1014', defIndex: 25 },
+    { label: 'MAG-7', defIndex: 27 },
+    { label: 'Sawed-Off', defIndex: 29 },
+    { label: 'M249', defIndex: 14 },
+    { label: 'Negev', defIndex: 28 }
+  ]);
+
+  addPreviewCategory('Pistols & Knives', [
+    { label: 'Glock-18', defIndex: 4 },
+    { label: 'USP-S', defIndex: 61 },
+    { label: 'P2000', defIndex: 32 },
+    { label: 'Desert Eagle', defIndex: 1 },
+    { label: 'P250', defIndex: 36 },
+    { label: 'Five-SeveN', defIndex: 3 },
+    { label: 'Tec-9', defIndex: 30 },
+    { label: 'CZ75-Auto', defIndex: 63 },
+    { label: 'R8 Revolver', defIndex: 64 },
+    { label: 'M9 Bayonet', defIndex: 508, paintKit: 413 },
+    { label: 'Knife', defIndex: 42 }
+  ]);
+
+  // Only paint kits already defined and verified in this repository are offered.
+  var previewPaintOptions = $.CreatePanel('Panel', previewModelSelector, '', {
+    style: 'flow-children: right; horizontal-align: center; margin-top: 5px;'
+  });
+  var paintLabel = $.CreatePanel('Label', previewPaintOptions, '', {
+    text: 'Known finishes:',
+    style: 'color: #f4d7ed; vertical-align: center; margin-right: 6px;'
+  });
+  var asiimovButton = $.CreatePanel('Button', previewPaintOptions, '', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin: 3px; padding: 4px 8px; background-color: #211329; border: 1px solid #78406e;'
+  });
+  $.CreatePanel('Label', asiimovButton, '', { text: 'M4A4 Asiimov', style: 'color: #fff0fb;' });
+  asiimovButton.SetPanelEvent('onactivate', function () {
+    viewmodelPreview.SetItemItemId(makeFauxItemId(16, 255), {});
+  });
+  var marbleFadeButton = $.CreatePanel('Button', previewPaintOptions, '', {
+    class: 'content-navbar__tabs__btn',
+    style: 'margin: 3px; padding: 4px 8px; background-color: #211329; border: 1px solid #78406e;'
+  });
+  $.CreatePanel('Label', marbleFadeButton, '', { text: 'M9 Marble Fade', style: 'color: #fff0fb;' });
+  marbleFadeButton.SetPanelEvent('onactivate', function () {
+    viewmodelPreview.SetItemItemId(makeFauxItemId(508, 413), {});
+  });
+
+  selectPreviewCategory(0);
 
   var viewmodelTab = $.CreatePanel('Panel', _viewmodelTab, '', { style: 'flow-children: down; margin-right: 40px; overflow: squish scroll;' });
 
