@@ -8,7 +8,7 @@ $.Osiris = (function () {
       const rootPanel = $.CreatePanel('Panel', $.GetContextPanel(), 'OsirisMenuTab', {
         class: "mainmenu-content__container",
         useglobalcontext: "true",
-        style: "background-color: #100b19f5; border: 1px solid #f064b6; box-shadow: 0px 0px 18px #000000cc;"
+        style: "background-color: #100b19d8; border: 1px solid #f064b6; box-shadow: 0px 0px 18px #000000cc;"
       });
 
       rootPanel.visible = false;
@@ -83,7 +83,7 @@ $.Osiris = (function () {
   var createNavbar = function () {
     var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel, '', {
       class: "content-navbar__tabs content-navbar__tabs--noflow",
-      style: "background-color: #190f22f5; border-bottom: 1px solid #f064b6;"
+      style: "background-color: #190f22e8; border-bottom: 1px solid #f064b6;"
     });
 
     var leftContainer = $.CreatePanel('Panel', navbar, '', {
@@ -363,7 +363,7 @@ $.Osiris = (function () {
   var createSection = function(tab, sectionName) {
     var background = $.CreatePanel('Panel', tab, '', {
       class: "SettingsBackground",
-      style: "background-color: #190f20f5; border: 1px solid #78406e; border-radius: 5px; box-shadow: 0px 2px 8px #00000088;"
+      style: "background-color: #190f20e8; border: 1px solid #78406e; border-radius: 5px; box-shadow: 0px 2px 8px #00000088;"
     });
 
     var titleContainer = $.CreatePanel('Panel', background, '', {
