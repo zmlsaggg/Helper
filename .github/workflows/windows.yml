@@ -1,11 +1,18 @@
 name: Windows
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   msbuild:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-2022, windows-2025]
         toolset: [ClangCL, MSVC]
@@ -20,10 +27,19 @@ jobs:
     - name: Build
       shell: cmd
       run: msbuild Osiris.sln /p:Platform=x64 /p:Configuration=${{ matrix.configuration }} ${{ env.toolset }}
+    - name: Upload Windows DLL
+      if: matrix.os == 'windows-2022' && matrix.toolset == 'MSVC' && matrix.configuration == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Helper-Windows-x64
+        path: x64/Release/Osiris.dll
+        if-no-files-found: error
+        compression-level: 9
 
   cmake:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-2022, windows-2025]
         toolset: [ClangCL, MSVC]
@@ -33,15 +49,56 @@ jobs:
     - name: Set toolset
       if: matrix.toolset == 'ClangCL'
       run: echo "toolset=-T ${{ matrix.toolset }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-    - name: configure
-      run: cmake -Werror=dev -DENABLE_TESTS="unit;functional" -DCMAKE_COMPILE_WARNING_AS_ERROR=1 -DCMAKE_UNITY_BUILD=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=4 -A x64 ${{ env.toolset }} -B build
-    - name: build source
+    - name: Configure
+      # GoogleTest uses directory-level include_directories(); do not promote
+      # its CMake developer warnings to fatal errors.
+      run: cmake -DENABLE_TESTS="unit;functional" -DCMAKE_COMPILE_WARNING_AS_ERROR=1 -DCMAKE_UNITY_BUILD=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=4 -A x64 ${{ env.toolset }} -B build
+    - name: Build source
       run: cmake --build build --target Osiris --config ${{ matrix.configuration }}
-    - name: build unit tests
+    - name: Build unit tests
       run: cmake --build build --target UnitTests --config ${{ matrix.configuration }}
-    - name: build functional tests
+    - name: Build functional tests
       run: cmake --build build --target FunctionalTests --config ${{ matrix.configuration }}
-    - name: run unit tests
+    - name: Run unit tests
       run: ctest -R ^Unit --test-dir build -C ${{ matrix.configuration }} --output-on-failure --no-tests=error --schedule-random -j $env:NUMBER_OF_PROCESSORS
-    - name: run functional tests
+    - name: Run functional tests
       run: ctest -R ^Functional --test-dir build -C ${{ matrix.configuration }} --output-on-failure --no-tests=error --schedule-random -j $env:NUMBER_OF_PROCESSORS
+
+  release:
+    name: Publish versioned GitHub Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [msbuild]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Calculate next version
+      id: version
+      shell: bash
+      run: |
+        latest="$(git tag --list 'v[0-9]*.[0-9]*' --sort=-version:refname | head -n 1)"
+        if [[ -z "$latest" ]]; then
+          version="v0.1"
+        elif [[ "$latest" =~ ^v([0-9]+)\.([0-9]+)$ ]]; then
+          version="v${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1))"
+        else
+          echo "Latest version tag has an unsupported format: $latest" >&2
+          exit 1
+        fi
+        echo "tag=$version" >> "$GITHUB_OUTPUT"
+        echo "Creating $version"
+    - uses: actions/download-artifact@v4
+      with:
+        name: Helper-Windows-x64
+        path: release
+    - name: Publish release and tag
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        target_commitish: ${{ github.sha }}
+        name: Helper ${{ steps.version.outputs.tag }}
+        generate_release_notes: true
+        files: release/Osiris.dll
