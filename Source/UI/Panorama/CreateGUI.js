@@ -802,7 +802,7 @@ u8R"(
     style: 'flow-children: right; horizontal-align: center;'
   });
   var previewCategoryContent = $.CreatePanel('Panel', previewModelSelector, '', {
-    style: 'width: 100%; max-height: 210px; overflow: squish scroll;'
+    style: 'width: 100%; height: 190px; overflow: squish scroll;'
   });
 
   var previewCategories = [];
@@ -823,14 +823,17 @@ u8R"(
     });
 
     var categoryPanel = $.CreatePanel('Panel', previewCategoryContent, '', {
-      style: 'width: 100%; flow-children: right;'
+      style: 'width: 100%; flow-children: down;'
     });
     previewCategories.push({ panel: categoryPanel });
     categoryButton.SetPanelEvent('onactivate', function () { selectPreviewCategory(index); });
 
+    var itemRow;
     for (var j = 0; j < items.length; ++j) {
-      (function (item) {
-        var itemButton = $.CreatePanel('Button', categoryPanel, '', {
+      if (j % 5 === 0)
+        itemRow = $.CreatePanel('Panel', categoryPanel, '', { style: 'width: 100%; flow-children: right;' });
+      (function (item, row) {
+        var itemButton = $.CreatePanel('Button', row, '', {
           class: 'content-navbar__tabs__btn',
           style: 'margin: 3px; padding: 5px 9px; background-color: #211329; border: 1px solid #78406e;'
         });
@@ -841,7 +844,7 @@ u8R"(
         itemButton.SetPanelEvent('onactivate', function () {
           viewmodelPreview.SetItemItemId(makeFauxItemId(item.defIndex, item.paintKit || 0), {});
         });
-      })(items[j]);
+      })(items[j], itemRow);
     }
   };
 
