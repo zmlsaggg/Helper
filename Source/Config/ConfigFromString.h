@@ -1,7 +1,9 @@
 #pragma once
 
 #include <span>
-#include <charconv>
+#include <cmath>
+#include <cstdint>
+#include <limits>
 
 #include "ConfigStringConversionState.h"
 #include <Platform/Macros/FunctionAttributes.h>
@@ -74,16 +76,51 @@ private:
         if (shouldReadMe()) {
             const auto previousReadIndex = readIndex;
             if (readUntilStartOfValue(key)) {
-                const auto* first = reinterpret_cast<const char*>(buffer.data() + readIndex);
-                const auto* last = reinterpret_cast<const char*>(buffer.data() + buffer.size());
-                const auto result = std::from_chars(first, last, value, std::chars_format::general);
-                if (result.ec == std::errc{} && result.ptr != first) {
-                    readIndex += static_cast<std::size_t>(result.ptr - first);
-                    parsed = true;
-                    markElementReadAtCurrentNestingLevel();
-                } else {
-                    readIndex = previousReadIndex;
+                auto index = readIndex;
+                bool negative = false;
+                if (index < buffer.size() && buffer[index] == u8'-') {
+                    negative = true;
+                    ++index;
                 }
+
+                double whole{};
+                bool hasDigits = false;
+                while (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9') {
+                    hasDigits = true;
+                    whole = whole * 10.0 + static_cast<double>(buffer[index] - u8'0');
+                    ++index;
+                    if (whole > static_cast<double>((std::numeric_limits<float>::max)())) {
+                        hasDigits = false;
+                        break;
+                    }
+                }
+
+                double fraction{};
+                double divisor{1.0};
+                if (hasDigits && index < buffer.size() && buffer[index] == u8'.') {
+                    ++index;
+                    std::size_t fractionalDigits{};
+                    while (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9' && fractionalDigits < 6) {
+                        fraction = fraction * 10.0 + static_cast<double>(buffer[index] - u8'0');
+                        divisor *= 10.0;
+                        ++fractionalDigits;
+                        ++index;
+                    }
+                    if (fractionalDigits == 0 || (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9'))
+                        hasDigits = false;
+                }
+
+                if (hasDigits) {
+                    const auto parsedValue = (whole + fraction / divisor) * (negative ? -1.0 : 1.0);
+                    value = static_cast<float>(parsedValue);
+                    if (std::isfinite(value)) {
+                        readIndex = index;
+                        parsed = true;
+                        markElementReadAtCurrentNestingLevel();
+                    }
+                }
+                if (!parsed)
+                    readIndex = previousReadIndex;
             } else {
                 readIndex = previousReadIndex;
             }

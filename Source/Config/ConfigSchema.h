@@ -1,6 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
 
 #include "ConfigVariableTypes.h"
 #include <HookContext/HookContextMacros.h>
@@ -239,6 +242,13 @@ private:
         } else if constexpr (std::is_enum_v<typename ConfigVariable::ValueType>) {
             return [this](std::integral auto value) {
                 hookContext.config().template setVariableWithoutAutoSave<ConfigVariable>(static_cast<ConfigVariable::ValueType>(value));
+            };
+        } else if constexpr (std::is_integral_v<typename ConfigVariable::ValueType> && std::is_signed_v<typename ConfigVariable::ValueType>) {
+            return [this](std::uint64_t value) {
+                using ValueType = typename ConfigVariable::ValueType;
+                const auto maximum = static_cast<std::uint64_t>((std::numeric_limits<ValueType>::max)());
+                hookContext.config().template setVariableWithoutAutoSave<ConfigVariable>(
+                    static_cast<ValueType>(std::min(value, maximum)));
             };
         } else {
             return [this](ConfigVariable::ValueType value) {

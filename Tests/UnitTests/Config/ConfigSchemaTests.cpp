@@ -1,4 +1,7 @@
+#include <array>
 #include <cstddef>
+#include <span>
+#include <string_view>
 #include <set>
 #include <vector>
 
@@ -6,6 +9,8 @@
 
 #include <Config/ConfigParams.h>
 #include <Config/ConfigSchema.h>
+#include <Config/ConfigFromString.h>
+#include <Config/ConfigToString.h>
 #include <Config/ConfigVariableTypes.h>
 
 #include <Mocks/MockConfig.h>
@@ -61,6 +66,12 @@ TEST_F(ConfigSchemaTest, SchemaIsValid) {
         ++nestingLevels.back();
     });
 
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_)).WillRepeatedly([this] {
+        EXPECT_GT(nestingLevels.size(), 0);
+        EXPECT_LT(nestingLevels.back(), config_params::kMaxObjectIndex);
+        ++nestingLevels.back();
+    });
+
     configSchema.performConversion(mockConfigConversion);
 }
 
@@ -89,7 +100,17 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsLoadedOnce) {
                     EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
                     configVariableIndexes.insert(configVariableIndex);
                 }));
-            valueSetter(std::uint64_t{}); 
+            valueSetter(std::uint64_t{});
+        }));
+
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_))
+        .WillRepeatedly(testing::WithArg<1>([this](auto valueSetter) {
+            EXPECT_CALL(mockConfig, setVariableWithoutAutoSave(testing::_, testing::_))
+                .WillOnce(testing::WithArg<0>([this](std::size_t configVariableIndex) {
+                    EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
+                    configVariableIndexes.insert(configVariableIndex);
+                }));
+            valueSetter(float{});
         }));
 
     configSchema.performConversion(mockConfigConversion);
@@ -123,9 +144,41 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsSavedOnce) {
                     configVariableIndexes.insert(configVariableIndex);
                     return std::any{};
             }));
-            valueGetter(); 
+            valueGetter();
+        }));
+
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_))
+        .WillRepeatedly(testing::WithArg<2>([this](auto valueGetter) {
+            EXPECT_CALL(mockConfig, getVariable(testing::_))
+                .WillOnce(testing::WithArg<0>([this](std::size_t configVariableIndex) {
+                    EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
+                    configVariableIndexes.insert(configVariableIndex);
+                    return std::any{};
+            }));
+            valueGetter();
         }));
 
     configSchema.performConversion(mockConfigConversion);
     EXPECT_EQ(configVariableIndexes.size(), ConfigVariableTypes::size());
+}
+
+
+TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
+{
+    constexpr auto source = u8"{\\"SpeedMultiplier\\":1.25}";
+    ConfigStringConversionState readState{};
+    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) / sizeof(source[0])}, readState};
+    float parsedValue{};
+    reader.beginRoot();
+    reader.real(u8"SpeedMultiplier", [&parsedValue](float value) { parsedValue = value; }, [] { return 1.0f; });
+    reader.endRoot();
+    EXPECT_FLOAT_EQ(parsedValue, 1.25f);
+
+    std::array<char8_t, 64> output{};
+    ConfigStringConversionState writeState{};
+    ConfigToString writer{output, writeState};
+    writer.beginRoot();
+    writer.real(u8"SpeedMultiplier", [](float) {}, [] { return 1.25f; });
+    const auto written = writer.endRoot();
+    EXPECT_EQ(std::u8string_view{output.data(), written}, u8"{\\"SpeedMultiplier\\":1.25}");
 }
