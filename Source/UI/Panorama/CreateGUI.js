@@ -588,6 +588,10 @@ u8R"(
   var flySection = createSection(flyTab, 'Fly');
   createOnOffDropDown(flySection, "Enable Fly", 'combat', 'fly_enabled');
   separator(flySection);
+  createDropDown(flySection, "Horizontal Speed", 'combat', 'fly_speed', ['150', '300', '450', '600', '750']);
+  createDropDown(flySection, "Vertical Speed", 'combat', 'fly_vertical_speed', ['100', '200', '300', '400', '500']);
+  createDropDown(flySection, "Acceleration", 'combat', 'fly_acceleration', ['0.05', '0.10', '0.20', '0.35', '0.50']);
+  createYesNoDropDown(flySection, "Show Direction Indicator", 'combat', 'fly_direction_indicator');
   $.CreatePanel('Label', flySection, 'FlyControlsHint', {
     text: "Movement: WASD · Up: Space · Down: Shift",
     style: "color: #f4d7ed; margin: 8px 0px;"
