@@ -9,6 +9,8 @@ public:
     {
         if constexpr (std::is_same_v<typename ConfigVariable::ValueType, bool>)
             return !ConfigVariable::kDefaultValue;
+        else if constexpr (std::is_arithmetic_v<typename ConfigVariable::ValueType>)
+            return static_cast<typename ConfigVariable::ValueType>(ConfigVariable::kDefaultValue + 1);
         else if constexpr (std::is_enum_v<typename ConfigVariable::ValueType>)
             return typename ConfigVariable::ValueType{static_cast<std::underlying_type_t<typename ConfigVariable::ValueType>>(ConfigVariable::kDefaultValue) + 1};
         else if constexpr (IsRangeConstrained<typename ConfigVariable::ValueType>::value) {
