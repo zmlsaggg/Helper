@@ -4,6 +4,8 @@
 #include "Hooks/PeepEventsHook.h"
 #include "Utils/ReturnAddress.h"
 
+void releaseRuntimeInstanceGuard() noexcept;
+
 [[NOINLINE]] bool tryInitializePanoramaGUI(auto& hookContext) noexcept
 {
     if (hookContext.panoramaGuiState().guiPanelHandle.isValid())
@@ -77,6 +79,8 @@ int SDLHook_PeepEvents(void* events, int numevents, int action, unsigned minType
         else if (entityTypeInfo.isWeapon())
             hookContext.template make<ModelGlow>().onUnload()(WeaponModelGlow{hookContext}, baseEntity.template as<BaseWeapon>());
     });
+
+    releaseRuntimeInstanceGuard();
 }
 
 void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept
