@@ -81,6 +81,14 @@ namespace
     }
 }
 
+void releaseRuntimeInstanceGuard() noexcept
+{
+    if (runtimeInstanceMutex) {
+        CloseHandle(runtimeInstanceMutex);
+        runtimeInstanceMutex = nullptr;
+    }
+}
+
 extern "C" std::size_t DllMain(HMODULE module, DWORD reason, LPVOID) noexcept
 {
     if (reason == DLL_PROCESS_ATTACH) {
@@ -95,6 +103,10 @@ extern "C" std::size_t DllMain(HMODULE module, DWORD reason, LPVOID) noexcept
 }
 
 #elif IS_LINUX()
+
+void releaseRuntimeInstanceGuard() noexcept
+{
+}
 
 #include "MemoryPatterns/Linux/LinuxPatterns.h"
 #include "Platform/Linux/LinuxPlatformApiImpl.h"
