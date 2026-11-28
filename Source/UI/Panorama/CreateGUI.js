@@ -20,7 +20,7 @@ $.Osiris = (function () {
             rootPanel.visible = false;
             rootPanel.SetReadyForDisplay(false);
             return true;
-          } else if (newPanel.visible === true) {
+          } else if (rootPanel.visible === true) {
             $.DispatchEvent('MainMenuTabShown', 'OsirisMenuTab');
           }
         }
