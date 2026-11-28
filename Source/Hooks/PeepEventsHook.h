@@ -15,12 +15,15 @@ public:
 
     [[nodiscard]] bool isValid() const noexcept
     {
-        return peepEventsPointer != nullptr;
+        return peepEventsPointer != nullptr && *peepEventsPointer != nullptr;
     }
 
     void enable() noexcept
     {
         assert(isValid());
+        if (!isValid())
+            return;
+
         original = *peepEventsPointer;
         *peepEventsPointer = &SDLHook_PeepEvents;
     }
@@ -28,6 +31,9 @@ public:
     void disable() const noexcept
     {
         assert(isValid());
+        if (!isValid())
+            return;
+
         *peepEventsPointer = original;
     }
 
