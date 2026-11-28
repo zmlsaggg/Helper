@@ -52,7 +52,8 @@ public:
         if (!enabled())
             return;
 
-        auto&& playerPawn = hookContext.localPlayerController().pawn();
+        auto playerController = hookContext.localPlayerController();
+        auto&& playerPawn = playerController.pawn();
         if (!playerPawn)
             return;
 
@@ -79,7 +80,6 @@ public:
         if (isKeyDown(fly_key::kSpace)) up = 1;
 
         // Get the player's yaw from the view angles
-        auto& playerController = hookContext.localPlayerController();
         float yaw = 0;
         auto* controllerPtr = reinterpret_cast<cs2::CCSPlayerController*>(&playerController);
         if (controllerPtr) {
