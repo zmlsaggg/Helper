@@ -1,4 +1,7 @@
+#include <array>
 #include <cstddef>
+#include <span>
+#include <string_view>
 #include <set>
 #include <vector>
 
@@ -6,6 +9,8 @@
 
 #include <Config/ConfigParams.h>
 #include <Config/ConfigSchema.h>
+#include <Config/ConfigFromString.h>
+#include <Config/ConfigToString.h>
 #include <Config/ConfigVariableTypes.h>
 
 #include <Mocks/MockConfig.h>
@@ -155,4 +160,25 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsSavedOnce) {
 
     configSchema.performConversion(mockConfigConversion);
     EXPECT_EQ(configVariableIndexes.size(), ConfigVariableTypes::size());
+}
+
+
+TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
+{
+    constexpr auto source = u8"{\\"SpeedMultiplier\\":1.25}";
+    ConfigStringConversionState readState{};
+    ConfigFromString reader{std::span<const char8_t>{source, std::size(source)}, readState};
+    float parsedValue{};
+    reader.beginRoot();
+    reader.real(u8"SpeedMultiplier", [&parsedValue](float value) { parsedValue = value; }, [] { return 1.0f; });
+    reader.endRoot();
+    EXPECT_FLOAT_EQ(parsedValue, 1.25f);
+
+    std::array<char8_t, 64> output{};
+    ConfigStringConversionState writeState{};
+    ConfigToString writer{output, writeState};
+    writer.beginRoot();
+    writer.real(u8"SpeedMultiplier", [](float) {}, [] { return 1.25f; });
+    const auto written = writer.endRoot();
+    EXPECT_EQ(std::u8string_view{output.data(), written}, u8"{\\"SpeedMultiplier\\":1.25}");
 }
