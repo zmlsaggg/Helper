@@ -151,7 +151,7 @@ public:
       onactivate: "MainMenu.NavigateToTab('OsirisMenuTab', '');"
     });
 
-    $.CreatePanel('Image', openMenuButton, '', {
+    $.CreatePanel('Label', openMenuButton, '', {
       class: "mainmenu-top-navbar__radio-btn__icon",
       text: "🐰",
       style: "font-size: 24px; horizontal-align: center; vertical-align: center;"
