@@ -33,8 +33,10 @@ private:
 
         configConversion.beginObject(u8"Fly");
         configConversion.boolean(u8"Enabled", loadVariable<fly_vars::Enabled>(), saveVariable<fly_vars::Enabled>());
-        configConversion.real(u8"SpeedMultiplier", loadVariable<fly_vars::SpeedMultiplier>(), saveVariable<fly_vars::SpeedMultiplier>());
-        configConversion.uint(u8"FlyKey", loadVariable<fly_vars::FlyKey>(), saveVariable<fly_vars::FlyKey>());
+        configConversion.real(u8"Speed", loadVariable<fly_vars::Speed>(), saveVariable<fly_vars::Speed>());
+        configConversion.real(u8"VerticalSpeed", loadVariable<fly_vars::VerticalSpeed>(), saveVariable<fly_vars::VerticalSpeed>());
+        configConversion.real(u8"Acceleration", loadVariable<fly_vars::Acceleration>(), saveVariable<fly_vars::Acceleration>());
+        configConversion.boolean(u8"ShowDirectionIndicator", loadVariable<fly_vars::ShowDirectionIndicator>(), saveVariable<fly_vars::ShowDirectionIndicator>());
         configConversion.endObject();
 
         configConversion.beginObject(u8"NoScopeInaccuracyVis");
