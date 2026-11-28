@@ -4,13 +4,17 @@
 #include "Hooks/PeepEventsHook.h"
 #include "Utils/ReturnAddress.h"
 
-[[NOINLINE]] void tryInitializePanoramaGUI(auto& hookContext) noexcept
+void releaseRuntimeInstanceGuard() noexcept;
+
+[[NOINLINE]] bool tryInitializePanoramaGUI(auto& hookContext) noexcept
 {
     if (hookContext.panoramaGuiState().guiPanelHandle.isValid())
-        return;
+        return true;
 
     if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu)
         hookContext.template make<PanoramaGUI>().init(hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
+
+    return hookContext.panoramaGuiState().guiPanelHandle.isValid();
 }
 
 [[NOINLINE]] void finishInit(auto& hookContext)
@@ -19,7 +23,6 @@
     tryInitializePanoramaGUI(hookContext);
     hookContext.config().init();
     hookContext.config().scheduleLoad();
-    hookContext.hooks().peepEventsHook.disable();
     hookContext.hooks().viewRenderHook.install();
 }
 
@@ -34,9 +37,12 @@ int SDLHook_PeepEvents(void* events, int numevents, int action, unsigned minType
     if (initInProgress)
         finishInit(hookContext);
     else
-        // Retry on SDL's event thread: the main-menu Panorama panel may not
-        // exist yet when the first event completes global initialization.
+        // Keep retrying until the main-menu Panorama tree is ready. The hook
+        // is detached only after the GUI has been created successfully.
         tryInitializePanoramaGUI(hookContext);
+
+    if (hookContext.panoramaGuiState().guiPanelHandle.isValid())
+        hookContext.hooks().peepEventsHook.disable();
 
     return hookContext.hooks().peepEventsHook.original(events, numevents, action, minType, maxType);
 }
@@ -73,6 +79,8 @@ int SDLHook_PeepEvents(void* events, int numevents, int action, unsigned minType
         else if (entityTypeInfo.isWeapon())
             hookContext.template make<ModelGlow>().onUnload()(WeaponModelGlow{hookContext}, baseEntity.template as<BaseWeapon>());
     });
+
+    releaseRuntimeInstanceGuard();
 }
 
 void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept

@@ -14,6 +14,7 @@ constinit ManuallyDestructible<GlobalContext> GlobalContext::globalContext;
 #include "Platform/Windows/WindowsPlatformApiImpl.h"
 
 #include <Windows.h>
+#include <cstdio>
 
 void operator delete(void*, std::size_t) noexcept
 {
@@ -22,6 +23,27 @@ void operator delete(void*, std::size_t) noexcept
 
 namespace
 {
+    HANDLE runtimeInstanceMutex{nullptr};
+
+    [[nodiscard]] bool acquireRuntimeInstanceGuard() noexcept
+    {
+        char mutexName[96]{};
+        std::snprintf(mutexName, sizeof(mutexName), "Local\\Zenvy.CS2.Runtime.Singleton.%lu",
+            static_cast<unsigned long>(GetCurrentProcessId()));
+
+        const auto mutex = CreateMutexA(nullptr, FALSE, mutexName);
+        if (!mutex)
+            return false;
+
+        if (GetLastError() == ERROR_ALREADY_EXISTS) {
+            CloseHandle(mutex);
+            return false;
+        }
+
+        runtimeInstanceMutex = mutex;
+        return true;
+    }
+
     [[nodiscard]] bool areRequiredGameModulesLoaded() noexcept
     {
         return GetModuleHandleA(cs2::CLIENT_DLL)
@@ -35,6 +57,11 @@ namespace
 
     DWORD WINAPI initializeGlobalContextThread(LPVOID) noexcept
     {
+        // Prevent a second manually mapped copy from installing another set
+        // of hooks over the first copy in the same CS2 process.
+        if (!acquireRuntimeInstanceGuard())
+            return 0;
+
         // ExLoader can inject while CS2 is still starting. Do not construct
         // GlobalContext until every module used by PartialGlobalContext exists.
         constexpr DWORD pollIntervalMs = 100;
@@ -48,7 +75,17 @@ namespace
             Sleep(pollIntervalMs);
         }
 
+        CloseHandle(runtimeInstanceMutex);
+        runtimeInstanceMutex = nullptr;
         return 0;
+    }
+}
+
+void releaseRuntimeInstanceGuard() noexcept
+{
+    if (runtimeInstanceMutex) {
+        CloseHandle(runtimeInstanceMutex);
+        runtimeInstanceMutex = nullptr;
     }
 }
 
@@ -66,6 +103,10 @@ extern "C" std::size_t DllMain(HMODULE module, DWORD reason, LPVOID) noexcept
 }
 
 #elif IS_LINUX()
+
+void releaseRuntimeInstanceGuard() noexcept
+{
+}
 
 #include "MemoryPatterns/Linux/LinuxPatterns.h"
 #include "Platform/Linux/LinuxPlatformApiImpl.h"
