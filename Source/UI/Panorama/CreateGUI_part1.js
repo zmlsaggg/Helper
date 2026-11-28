@@ -254,7 +254,7 @@ $.Osiris = (function () {
   var createSunsetBackdrop = function () {
     var scene = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SunsetBackdrop', {
       hittest: 'false',
-      style: "position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
+      style: "z-index: 0; position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
     });
 
     var sun = $.CreatePanel('Panel', scene, 'SunsetDisc', {
