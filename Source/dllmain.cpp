@@ -14,7 +14,6 @@ constinit ManuallyDestructible<GlobalContext> GlobalContext::globalContext;
 #include "Platform/Windows/WindowsPlatformApiImpl.h"
 
 #include <Windows.h>
-#include <cstdio>
 
 void operator delete(void*, std::size_t) noexcept
 {
@@ -27,9 +26,27 @@ namespace
 
     [[nodiscard]] bool acquireRuntimeInstanceGuard() noexcept
     {
-        char mutexName[96]{};
-        std::snprintf(mutexName, sizeof(mutexName), "Local\\Zenvy.CS2.Runtime.Singleton.%lu",
-            static_cast<unsigned long>(GetCurrentProcessId()));
+        // Build the per-process name without CRT formatting helpers: this
+        // project deliberately links without the full MSVC stdio runtime.
+        constexpr char prefix[] = "Local\\Zenvy.CS2.Runtime.Singleton.";
+        char mutexName[sizeof(prefix) + 10]{};
+        std::size_t length = 0;
+        while (prefix[length] != '\0') {
+            mutexName[length] = prefix[length];
+            ++length;
+        }
+
+        auto processId = GetCurrentProcessId();
+        char digits[10]{};
+        std::size_t digitCount = 0;
+        do {
+            digits[digitCount++] = static_cast<char>('0' + processId % 10);
+            processId /= 10;
+        } while (processId != 0 && digitCount < sizeof(digits));
+
+        while (digitCount != 0)
+            mutexName[length++] = digits[--digitCount];
+        mutexName[length] = '\0';
 
         const auto mutex = CreateMutexA(nullptr, FALSE, mutexName);
         if (!mutex)

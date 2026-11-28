@@ -11,8 +11,12 @@ void releaseRuntimeInstanceGuard() noexcept;
     if (hookContext.panoramaGuiState().guiPanelHandle.isValid())
         return true;
 
-    if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu)
-        hookContext.template make<PanoramaGUI>().init(hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
+    if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu) {
+        const auto initialized = hookContext.template make<PanoramaGUI>().init(
+            hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
+        if (initialized)
+            return true;
+    }
 
     return hookContext.panoramaGuiState().guiPanelHandle.isValid();
 }
