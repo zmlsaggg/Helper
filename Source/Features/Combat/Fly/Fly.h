@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Features/Combat/Fly/FlyConfigVariables.h>
-#include <cmath>
 
 #if defined(_WIN32)
 #include <Windows.h>
@@ -79,22 +78,23 @@ public:
         if (isKeyDown(fly_key::kA)) right = -1;
         if (isKeyDown(fly_key::kSpace)) up = 1;
 
-        // Get the player's yaw from the view angles
+        // Get the player's yaw from the view angles.
         float yaw = 0;
         auto* controllerPtr = reinterpret_cast<cs2::CCSPlayerController*>(&playerController);
         if (controllerPtr) {
-            // m_vecViewAngles offset in CCSPlayerController
+            // m_vecViewAngles offset in CCSPlayerController.
             yaw = *reinterpret_cast<float*>(reinterpret_cast<char*>(controllerPtr) + 0x108);
         }
 
-        float cosYaw = cosf(yaw * 3.14159265f / 180.0f);
-        float sinYaw = sinf(yaw * 3.14159265f / 180.0f);
+        float sinYaw = 0;
+        float cosYaw = 1;
+        sinCosDegrees(yaw, sinYaw, cosYaw);
 
-        float vx = (right * cosYaw - forward * sinYaw) * speed * 300.0f;
-        float vy = (right * sinYaw + forward * cosYaw) * speed * 300.0f;
-        float vz = up * speed * 200.0f;
+        const float vx = (right * cosYaw - forward * sinYaw) * speed * 300.0f;
+        const float vy = (right * sinYaw + forward * cosYaw) * speed * 300.0f;
+        const float vz = up * speed * 200.0f;
 
-        // Write velocity directly to the pawn entity at offset 0x1B0
+        // Write velocity directly to the pawn entity at offset 0x1B0.
         auto* velocityPtr = *reinterpret_cast<float**>(reinterpret_cast<char*>(&pawn) + 0x1B0);
         if (velocityPtr) {
             velocityPtr[0] = vx;
@@ -104,6 +104,34 @@ public:
     }
 
 private:
+    // Small polynomial approximation avoids a dependency on the C math
+    // runtime, which is intentionally omitted by the Windows Release build.
+    [[nodiscard]] static void sinCosDegrees(float degrees, float& sine, float& cosine) noexcept
+    {
+        constexpr float kPi = 3.14159265358979323846f;
+        constexpr float kHalfPi = kPi * 0.5f;
+        constexpr float kTwoPi = kPi * 2.0f;
+
+        float angle = degrees * (kPi / 180.0f);
+        while (angle > kPi)
+            angle -= kTwoPi;
+        while (angle < -kPi)
+            angle += kTwoPi;
+
+        float cosineSign = 1.0f;
+        if (angle > kHalfPi) {
+            angle = kPi - angle;
+            cosineSign = -1.0f;
+        } else if (angle < -kHalfPi) {
+            angle = -kPi - angle;
+            cosineSign = -1.0f;
+        }
+
+        const float squared = angle * angle;
+        sine = angle * (1.0f + squared * (-1.0f / 6.0f + squared * (1.0f / 120.0f + squared * (-1.0f / 5040.0f + squared / 362880.0f))));
+        cosine = cosineSign * (1.0f + squared * (-1.0f / 2.0f + squared * (1.0f / 24.0f + squared * (-1.0f / 720.0f + squared / 40320.0f))));
+    }
+
     [[nodiscard]] static bool isKeyDown(int key) noexcept
     {
 #if defined(_WIN32)
