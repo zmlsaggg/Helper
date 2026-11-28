@@ -153,7 +153,8 @@ public:
 
     $.CreatePanel('Image', openMenuButton, '', {
       class: "mainmenu-top-navbar__radio-btn__icon",
-      src: "s2r://panorama/images/icons/ui/bug.vsvg"
+      text: "🐰",
+      style: "font-size: 24px; horizontal-align: center; vertical-align: center;"
     });
 
     $.DispatchEvent('Activated', context.FindChildTraverse("MainMenuNavBarHome"), 'mouse');
