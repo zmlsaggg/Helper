@@ -28,7 +28,7 @@ namespace
     {
         // Build the per-process name without CRT formatting helpers: this
         // project deliberately links without the full MSVC stdio runtime.
-        constexpr char prefix[] = "Local\\Zenvy.CS2.Runtime.Singleton.";
+        constexpr char prefix[] = "Local\\FunBun.CS2.Runtime.Singleton.";
         char mutexName[sizeof(prefix) + 10]{};
         std::size_t length = 0;
         while (prefix[length] != '\0') {
