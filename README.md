@@ -1,9 +1,9 @@
 # FunBun
 
-[![Windows](https://github.com/FunBungg/FunBun/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/FunBungg/FunBun/actions/workflows/windows.yml)
-[![Linux](https://github.com/FunBungg/FunBun/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/FunBungg/FunBun/actions/workflows/linux.yml)
+[![Windows](https://github.com/zmlsaggg/FunBun/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/FunBun/actions/workflows/windows.yml)
+[![Linux](https://github.com/zmlsaggg/FunBun/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/FunBun/actions/workflows/linux.yml)
 
-**FunBun** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base while using its own green visual identity.
+**FunBun** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base with a custom pink-and-purple Panorama interface.
 
 ## What's new
 
@@ -29,6 +29,8 @@
     * Added viewmodel fov modification
 
     ![Viewmodel fov modification](https://github.com/user-attachments/assets/3b9d6bde-a68c-4739-913c-d3b6caba4117)
+
+> Note: the Visual Studio solution, native build target, and on-disk config directory still use legacy upstream identifiers. They are intentionally retained in this UI/branding patch so existing build scripts and user configs keep working.
 
 ## Technical features
 
@@ -56,7 +58,7 @@
 
 #### Windows
 
-Open **FunBun.sln** in Visual Studio 2022, set build configuration to **Release | x64**. Press *Build solution* and you should receive **FunBun.dll** file.
+Open **Osiris.sln** in Visual Studio 2022, set build configuration to **Release | x64**. Press *Build solution* and you should receive **Osiris.dll** file.
 
 #### Linux
 
@@ -68,7 +70,7 @@ Build:
 
     cmake --build build -j $(nproc --all)
 
-After following these steps you should receive **libFunBun.so** file in **build/Source/** directory.
+After following these steps you should receive **libOsiris.so** file in **build/Source/** directory.
 
 ### Loading / Injecting into game process
 
@@ -84,7 +86,7 @@ Counter-Strike 2 blocks LoadLibrary injection method, so you have to use a manua
 
 You can simply run the following script in the directory containing **libFunBun.so**:
 
-    sudo gdb -batch-silent -p $(pidof cs2) -ex "call (void*)dlopen(\"$PWD/libFunBun.so\", 2)"
+    sudo gdb -batch-silent -p $(pidof cs2) -ex "call (void*)dlopen(\"$PWD/libOsiris.so\", 2)"
 
 However, this injection method might be detected by VAC as gdb is visible under **TracerPid** in `/proc/$(pidof cs2)/status` for the duration of the injection.
 
@@ -92,10 +94,10 @@ However, this injection method might be detected by VAC as gdb is visible under 
 
 ### Where are the settings stored on disk?
 
-In a configuration file `default.cfg` inside `%appdata%\FunBunCS2\configs` directory on Windows and `$HOME/FunBunCS2/configs` on Linux.
+In a configuration file `default.cfg` inside `%appdata%\FunBunCS2\configs` directory on Windows and `$HOME/OsirisCS2/configs` on Linux.
 
 ## License
 
 > Copyright (c) 2018-2026 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/FunBungg/FunBun/blob/master/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/zmlsaggg/FunBun/blob/master/LICENSE) file for details.
