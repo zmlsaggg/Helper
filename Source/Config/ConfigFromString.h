@@ -3,6 +3,7 @@
 #include <span>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include "ConfigStringConversionState.h"
 #include <Platform/Macros/FunctionAttributes.h>
