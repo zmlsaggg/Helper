@@ -15,7 +15,7 @@ public:
     ConfigVariables() noexcept
     {
         ConfigVariableTypes::forEach([this] <typename ConfigVariable> (std::type_identity<ConfigVariable>) {
-            storeVariableValue<ConfigVariable>(ConfigVariable::kDefaultValue);
+            this->storeVariableValue<ConfigVariable>(ConfigVariable::kDefaultValue);
         });
     }
 
@@ -35,17 +35,21 @@ private:
     template <typename ConfigVariable>
     [[nodiscard]] auto& variableStorage() noexcept
     {
-        if constexpr (OneByteConfigVariables::contains<ConfigVariable>())
+        if constexpr (OneByteConfigVariables::template contains<ConfigVariable>())
             return oneByteConfigVariables[OneByteConfigVariables::template indexOf<ConfigVariable>()];
-        else if constexpr (TwoByteConfigVariables::contains<ConfigVariable>())
+        else if constexpr (TwoByteConfigVariables::template contains<ConfigVariable>())
             return twoByteConfigVariables[TwoByteConfigVariables::template indexOf<ConfigVariable>()];
+        else if constexpr (FourByteConfigVariables::template contains<ConfigVariable>())
+            return fourByteConfigVariables[FourByteConfigVariables::template indexOf<ConfigVariable>()];
         else
-            static_assert(!std::is_same_v<ConfigVariable, ConfigVariable>, "Unknown type");
+            static_assert(!std::is_same_v<ConfigVariable, ConfigVariable>, "Unsupported config variable size");
     }
 
     using OneByteConfigVariables = ConfigVariableTypes::filter<Projected<UnpackConfigVariable, WithSizeOf<1>::Equal>::Value>;
     using TwoByteConfigVariables = ConfigVariableTypes::filter<Projected<UnpackConfigVariable, WithSizeOf<2>::Equal>::Value>;
+    using FourByteConfigVariables = ConfigVariableTypes::filter<Projected<UnpackConfigVariable, WithSizeOf<4>::Equal>::Value>;
 
-    std::array<std::byte[1], OneByteConfigVariables::size()> oneByteConfigVariables;
-    std::array<std::byte[2], TwoByteConfigVariables::size()> twoByteConfigVariables;
+    std::array<std::array<std::byte, 1>, OneByteConfigVariables::size()> oneByteConfigVariables{};
+    std::array<std::array<std::byte, 2>, TwoByteConfigVariables::size()> twoByteConfigVariables{};
+    std::array<std::array<std::byte, 4>, FourByteConfigVariables::size()> fourByteConfigVariables{};
 };

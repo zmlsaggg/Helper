@@ -1,8 +1,43 @@
 #pragma once
 
 #include <Features/Combat/Fly/FlyConfigVariables.h>
-#include <Windows.h>
 #include <cmath>
+
+#if defined(_WIN32)
+#include <Windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
+namespace fly_key {
+#if defined(_WIN32)
+constexpr int kLeftShift = VK_LSHIFT;
+constexpr int kRightShift = VK_RSHIFT;
+constexpr int kLeftControl = VK_LCONTROL;
+constexpr int kRightControl = VK_RCONTROL;
+constexpr int kLeftAlt = VK_LMENU;
+constexpr int kRightAlt = VK_RMENU;
+constexpr int kW = 'W';
+constexpr int kS = 'S';
+constexpr int kA = 'A';
+constexpr int kD = 'D';
+constexpr int kSpace = VK_SPACE;
+#else
+// SDL3 scancode values. The game already loads SDL3; resolve its public
+// keyboard-state function at runtime so Linux builds do not need SDL headers.
+constexpr int kLeftShift = 225;
+constexpr int kRightShift = 229;
+constexpr int kLeftControl = 224;
+constexpr int kRightControl = 228;
+constexpr int kLeftAlt = 226;
+constexpr int kRightAlt = 230;
+constexpr int kW = 26;
+constexpr int kS = 22;
+constexpr int kA = 4;
+constexpr int kD = 7;
+constexpr int kSpace = 44;
+#endif
+}
 
 template <typename HookContext>
 class Fly {
@@ -17,7 +52,8 @@ public:
         if (!enabled())
             return;
 
-        auto&& playerPawn = hookContext.localPlayerController().pawn();
+        auto playerController = hookContext.localPlayerController();
+        auto&& playerPawn = playerController.pawn();
         if (!playerPawn)
             return;
 
@@ -25,9 +61,9 @@ public:
         bool keyDown = false;
 
         switch (key) {
-        case 0: keyDown = (GetAsyncKeyState(VK_LSHIFT) & 0x8000) || (GetAsyncKeyState(VK_RSHIFT) & 0x8000); break;
-        case 1: keyDown = (GetAsyncKeyState(VK_LCONTROL) & 0x8000) || (GetAsyncKeyState(VK_RCONTROL) & 0x8000); break;
-        case 2: keyDown = (GetAsyncKeyState(VK_LMENU) & 0x8000) || (GetAsyncKeyState(VK_RMENU) & 0x8000); break;
+        case 0: keyDown = isKeyDown(fly_key::kLeftShift) || isKeyDown(fly_key::kRightShift); break;
+        case 1: keyDown = isKeyDown(fly_key::kLeftControl) || isKeyDown(fly_key::kRightControl); break;
+        case 2: keyDown = isKeyDown(fly_key::kLeftAlt) || isKeyDown(fly_key::kRightAlt); break;
         }
 
         if (!keyDown)
@@ -37,14 +73,13 @@ public:
         const auto speed = speedMultiplier();
 
         float forward = 0, right = 0, up = 0;
-        if (GetAsyncKeyState('W') & 0x8000) forward = 1;
-        if (GetAsyncKeyState('S') & 0x8000) forward = -1;
-        if (GetAsyncKeyState('D') & 0x8000) right = 1;
-        if (GetAsyncKeyState('A') & 0x8000) right = -1;
-        if (GetAsyncKeyState(VK_SPACE) & 0x8000) up = 1;
+        if (isKeyDown(fly_key::kW)) forward = 1;
+        if (isKeyDown(fly_key::kS)) forward = -1;
+        if (isKeyDown(fly_key::kD)) right = 1;
+        if (isKeyDown(fly_key::kA)) right = -1;
+        if (isKeyDown(fly_key::kSpace)) up = 1;
 
         // Get the player's yaw from the view angles
-        auto& playerController = hookContext.localPlayerController();
         float yaw = 0;
         auto* controllerPtr = reinterpret_cast<cs2::CCSPlayerController*>(&playerController);
         if (controllerPtr) {
@@ -69,6 +104,22 @@ public:
     }
 
 private:
+    [[nodiscard]] static bool isKeyDown(int key) noexcept
+    {
+#if defined(_WIN32)
+        return (GetAsyncKeyState(key) & 0x8000) != 0;
+#else
+        using SDLGetKeyboardState = const bool* (*)(int*);
+        const auto getKeyboardState = reinterpret_cast<SDLGetKeyboardState>(dlsym(RTLD_DEFAULT, "SDL_GetKeyboardState"));
+        if (!getKeyboardState)
+            return false;
+
+        int keyCount = 0;
+        const auto* keyboardState = getKeyboardState(&keyCount);
+        return keyboardState && key >= 0 && key < keyCount && keyboardState[key];
+#endif
+    }
+
     [[nodiscard]] bool enabled() const noexcept
     {
         return GET_CONFIG_VAR(fly_vars::Enabled);
