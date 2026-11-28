@@ -180,6 +180,13 @@ protected:
         get<fly_vars::Acceleration>() = 0.1f;
         get<fly_vars::ShowDirectionIndicator>() = true;
         get<wallhack_vars::Enabled>() = false;
+        get<wallhack_vars::ShowEnemies>() = true;
+        get<wallhack_vars::ShowTeammates>() = true;
+        get<wallhack_vars::ShowBoxes>() = true;
+        get<wallhack_vars::ShowSkeleton>() = true;
+        get<wallhack_vars::ShowInfo>() = true;
+        get<wallhack_vars::ShowDistance>() = true;
+        get<wallhack_vars::ShowHealth>() = true;
     }
 
     struct VariableChecker {
