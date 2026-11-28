@@ -113,8 +113,10 @@ public:
         uiEngine().runScript(mainMenu, "if (!$('#JsSettings')) MainMenu.NavigateToTab('JsSettings', 'settings/settings');");
 
         const auto settings = mainMenu.findChildInLayoutFile("JsSettings");
-        if (settings)
-            state().settingsPanelHandle = settings.getHandle();
+        if (!settings)
+            return;
+
+        state().settingsPanelHandle = settings.getHandle();
 
         uiEngine().runScript(settings, reinterpret_cast<const char*>(
 #include "CreateGUI.js"
