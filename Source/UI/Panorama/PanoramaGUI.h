@@ -103,60 +103,88 @@ public:
     {
     }
 
-    void init(auto&& mainMenu) noexcept
+    [[nodiscard]] bool init(auto&& mainMenu) noexcept
     {
-        if (!mainMenu || state().guiPanelHandle.isValid())
-            return;
+        if (!mainMenu)
+            return false;
 
-        // ensure settings tab is loaded because we use CSS classes from settings
-        // TODO: replace use of settings CSS classes with raw style properties
+        if (state().guiPanelHandle.isValid())
+            return true;
+
+        // Ensure the settings tab is loaded because the menu uses its CSS classes.
         uiEngine().runScript(mainMenu, "if (!$('#JsSettings')) MainMenu.NavigateToTab('JsSettings', 'settings/settings');");
 
         const auto settings = mainMenu.findChildInLayoutFile("JsSettings");
         if (!settings)
-            return;
+            return false;
 
         state().settingsPanelHandle = settings.getHandle();
 
-        uiEngine().runScript(settings, reinterpret_cast<const char*>(
+        // Do not execute the large creation script again if its root panel already exists.
+        if (!mainMenu.findChildInLayoutFile("OsirisMenuTab"))
+            uiEngine().runScript(settings, reinterpret_cast<const char*>(
 #include "CreateGUI.js"
 ));
 
+        // This script is safe to retry: it reparents an existing tab and creates
+        // the navbar button only when it does not already exist.
         uiEngine().runScript(mainMenu, R"(
 (function () {
-  $('#JsSettings').FindChildInLayoutFile('OsirisMenuTab').SetParent($('#JsMainMenuContent'));
+  var context = $.GetContextPanel();
+  var settings = context.FindChildTraverse('JsSettings');
+  var content = context.FindChildTraverse('JsMainMenuContent');
+  var menuTab = settings && settings.FindChildInLayoutFile('OsirisMenuTab');
+  if (menuTab && content)
+    menuTab.SetParent(content);
 
-  var openMenuButton = $.CreatePanel('RadioButton', $.GetContextPanel().FindChildTraverse('MainMenuNavBarSettings').GetParent(), 'OsirisOpenMenuButton', {
-    class: "mainmenu-top-navbar__radio-iconbtn",
-    group: "NavBar",
-    onactivate: "MainMenu.NavigateToTab('OsirisMenuTab', '');"
-  });
+  var openMenuButton = context.FindChildTraverse('OsirisOpenMenuButton');
+  if (!openMenuButton) {
+    var settingsButton = context.FindChildTraverse('MainMenuNavBarSettings');
+    var navBar = settingsButton && settingsButton.GetParent();
+    if (!navBar)
+      return;
 
-  $.CreatePanel('Image', openMenuButton, '', {
-    class: "mainmenu-top-navbar__radio-btn__icon",
-    src: "s2r://panorama/images/icons/ui/bug.vsvg"
-  });
+    openMenuButton = $.CreatePanel('RadioButton', navBar, 'OsirisOpenMenuButton', {
+      class: "mainmenu-top-navbar__radio-iconbtn",
+      group: "NavBar",
+      onactivate: "MainMenu.NavigateToTab('OsirisMenuTab', '');"
+    });
 
-  $.DispatchEvent('Activated', $.GetContextPanel().FindChildTraverse("MainMenuNavBarHome"), 'mouse');
+    $.CreatePanel('Image', openMenuButton, '', {
+      class: "mainmenu-top-navbar__radio-btn__icon",
+      src: "s2r://panorama/images/icons/ui/bug.vsvg"
+    });
+
+    $.DispatchEvent('Activated', context.FindChildTraverse("MainMenuNavBarHome"), 'mouse');
+  }
 })();
 )");
 
-        if (const auto guiButtonPanel = mainMenu.findChildInLayoutFile("OsirisOpenMenuButton"))
-            state().guiButtonHandle = guiButtonPanel.getHandle();
+        const auto guiButtonPanel = mainMenu.findChildInLayoutFile("OsirisOpenMenuButton");
+        const auto guiPanel = mainMenu.findChildInLayoutFile("OsirisMenuTab");
+        if (!guiButtonPanel || !guiPanel)
+            return false;
 
-        if (const auto guiPanel = mainMenu.findChildInLayoutFile("OsirisMenuTab")) {
-            state().guiPanelHandle = guiPanel.getHandle();
-            state().modelGlowPreviewPlayerLabelHandleTT = guiPanel.findChildInLayoutFile("ModelGlowPreviewPlayerTTLabel").getHandle();
-            state().modelGlowPreviewPlayerLabelHandleCT = guiPanel.findChildInLayoutFile("ModelGlowPreviewPlayerCTLabel").getHandle();
-            state().viewmodelPreviewPanelHandle = guiPanel.findChildInLayoutFile("ViewmodelPreview").getHandle();
+        const auto previewLabelTT = guiPanel.findChildInLayoutFile("ModelGlowPreviewPlayerTTLabel");
+        const auto previewLabelCT = guiPanel.findChildInLayoutFile("ModelGlowPreviewPlayerCTLabel");
+        const auto viewmodelPreview = guiPanel.findChildInLayoutFile("ViewmodelPreview");
+        if (!previewLabelTT || !previewLabelCT || !viewmodelPreview)
+            return false;
 
-            hookContext.template make<CombatTab>().init(guiPanel);
-            hookContext.template make<HudTab>().init(guiPanel);
-            hookContext.template make<VisualsTab>().init(guiPanel);
-            hookContext.template make<SoundTab>().init(guiPanel);
-        }
+        // Publish handles only after every panel used by the render/update path exists.
+        state().guiButtonHandle = guiButtonPanel.getHandle();
+        state().modelGlowPreviewPlayerLabelHandleTT = previewLabelTT.getHandle();
+        state().modelGlowPreviewPlayerLabelHandleCT = previewLabelCT.getHandle();
+        state().viewmodelPreviewPanelHandle = viewmodelPreview.getHandle();
+        state().guiPanelHandle = guiPanel.getHandle();
+
+        hookContext.template make<CombatTab>().init(guiPanel);
+        hookContext.template make<HudTab>().init(guiPanel);
+        hookContext.template make<VisualsTab>().init(guiPanel);
+        hookContext.template make<SoundTab>().init(guiPanel);
 
         updateFromConfig();
+        return true;
     }
 
     template <typename ConfigVariable>
