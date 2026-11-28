@@ -105,7 +105,7 @@ public:
 
     void init(auto&& mainMenu) noexcept
     {
-        if (!mainMenu)
+        if (!mainMenu || state().guiPanelHandle.isValid())
             return;
 
         // ensure settings tab is loaded because we use CSS classes from settings
@@ -179,6 +179,9 @@ public:
 
     void run(UnloadFlag& unloadFlag) const noexcept
     {
+        if (!state().guiPanelHandle.isValid())
+            return;
+
         auto&& guiPanel = uiEngine().getPanelFromHandle(state().guiPanelHandle);
         if (!guiPanel)
             return;
