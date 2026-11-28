@@ -1,9 +1,9 @@
-# zmlsag
+# FunBun
 
-[![Windows](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml)
-[![Linux](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml)
+[![Windows](https://github.com/FunBungg/FunBun/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/FunBungg/FunBun/actions/workflows/windows.yml)
+[![Linux](https://github.com/FunBungg/FunBun/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/FunBungg/FunBun/actions/workflows/linux.yml)
 
-**zmlsag** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base while using its own green visual identity.
+**FunBun** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base while using its own green visual identity.
 
 ## What's new
 
@@ -56,7 +56,7 @@
 
 #### Windows
 
-Open **Osiris.sln** in Visual Studio 2022, set build configuration to **Release | x64**. Press *Build solution* and you should receive **Osiris.dll** file.
+Open **FunBun.sln** in Visual Studio 2022, set build configuration to **Release | x64**. Press *Build solution* and you should receive **FunBun.dll** file.
 
 #### Linux
 
@@ -68,13 +68,13 @@ Build:
 
     cmake --build build -j $(nproc --all)
 
-After following these steps you should receive **libOsiris.so** file in **build/Source/** directory.
+After following these steps you should receive **libFunBun.so** file in **build/Source/** directory.
 
 ### Loading / Injecting into game process
 
 #### Windows
 
-You need a **DLL injector** to inject (load) **Osiris.dll** into game process.
+You need a **DLL injector** to inject (load) **FunBun.dll** into game process.
 
 Counter-Strike 2 blocks LoadLibrary injection method, so you have to use a manual mapping (aka reflective DLL injection) injector.
 
@@ -82,9 +82,9 @@ Counter-Strike 2 blocks LoadLibrary injection method, so you have to use a manua
 
 #### Linux
 
-You can simply run the following script in the directory containing **libOsiris.so**:
+You can simply run the following script in the directory containing **libFunBun.so**:
 
-    sudo gdb -batch-silent -p $(pidof cs2) -ex "call (void*)dlopen(\"$PWD/libOsiris.so\", 2)"
+    sudo gdb -batch-silent -p $(pidof cs2) -ex "call (void*)dlopen(\"$PWD/libFunBun.so\", 2)"
 
 However, this injection method might be detected by VAC as gdb is visible under **TracerPid** in `/proc/$(pidof cs2)/status` for the duration of the injection.
 
@@ -92,10 +92,10 @@ However, this injection method might be detected by VAC as gdb is visible under 
 
 ### Where are the settings stored on disk?
 
-In a configuration file `default.cfg` inside `%appdata%\OsirisCS2\configs` directory on Windows and `$HOME/OsirisCS2/configs` on Linux.
+In a configuration file `default.cfg` inside `%appdata%\FunBunCS2\configs` directory on Windows and `$HOME/FunBunCS2/configs` on Linux.
 
 ## License
 
 > Copyright (c) 2018-2026 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/zmlsaggg/Helper/blob/master/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/FunBungg/FunBun/blob/master/LICENSE) file for details.
