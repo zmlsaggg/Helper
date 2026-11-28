@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <charconv>
 #include <cstddef>
 #include <span>
 
@@ -66,6 +67,11 @@ public:
         writeUint(key, valueGetter());
     }
 
+    void real(const char8_t* key, auto&& /* valueSetter */, auto&& valueGetter)
+    {
+        writeFloat(key, valueGetter());
+    }
+
 private:
     void writeBool(const char8_t* key, bool value) noexcept
     {
@@ -84,6 +90,18 @@ private:
         if (shouldWriteMe()) {
             const auto previousWriteIndex = writeIndex;
             if (writeCommaAfterPreviousElement() && writeKey(key) && writeUint(value))
+                increaseConversionIndexInNestingLevel();
+            else
+                writeIndex = previousWriteIndex;
+        }
+        increaseIndexInNestingLevel();
+    }
+
+    void writeFloat(const char8_t* key, float value) noexcept
+    {
+        if (shouldWriteMe()) {
+            const auto previousWriteIndex = writeIndex;
+            if (writeCommaAfterPreviousElement() && writeKey(key) && writeFloat(value))
                 increaseConversionIndexInNestingLevel();
             else
                 writeIndex = previousWriteIndex;
@@ -170,6 +188,19 @@ private:
     [[nodiscard]] bool writeBool(bool value) noexcept
     {
         return writeString(value ? u8"true" : u8"false");
+    }
+
+    [[nodiscard]] bool writeFloat(float value) noexcept
+    {
+        char buffer[32];
+        const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
+        if (result.ec != std::errc{})
+            return false;
+        for (auto current = buffer; current != result.ptr; ++current) {
+            if (!writeChar(static_cast<char8_t>(*current)))
+                return false;
+        }
+        return true;
     }
 
     [[nodiscard]] bool writeChar(char8_t c) noexcept
