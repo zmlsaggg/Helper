@@ -72,61 +72,71 @@ public:
 private:
     [[nodiscard]] bool parseFloat(const char8_t* key, float& value) noexcept
     {
-        bool parsed = false;
-        if (shouldReadMe()) {
-            const auto previousReadIndex = readIndex;
-            if (readUntilStartOfValue(key)) {
-                auto index = readIndex;
-                bool negative = false;
-                if (index < buffer.size() && buffer[index] == u8'-') {
-                    negative = true;
-                    ++index;
-                }
-
-                double whole{};
-                bool hasDigits = false;
-                while (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9') {
-                    hasDigits = true;
-                    whole = whole * 10.0 + static_cast<double>(buffer[index] - u8'0');
-                    ++index;
-                    if (whole > static_cast<double>((std::numeric_limits<float>::max)())) {
-                        hasDigits = false;
-                        break;
-                    }
-                }
-
-                double fraction{};
-                double divisor{1.0};
-                if (hasDigits && index < buffer.size() && buffer[index] == u8'.') {
-                    ++index;
-                    std::size_t fractionalDigits{};
-                    while (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9' && fractionalDigits < 6) {
-                        fraction = fraction * 10.0 + static_cast<double>(buffer[index] - u8'0');
-                        divisor *= 10.0;
-                        ++fractionalDigits;
-                        ++index;
-                    }
-                    if (fractionalDigits == 0 || (index < buffer.size() && buffer[index] >= u8'0' && buffer[index] <= u8'9'))
-                        hasDigits = false;
-                }
-
-                if (hasDigits) {
-                    const auto parsedValue = (whole + fraction / divisor) * (negative ? -1.0 : 1.0);
-                    value = static_cast<float>(parsedValue);
-                    if (std::isfinite(value)) {
-                        readIndex = index;
-                        parsed = true;
-                        markElementReadAtCurrentNestingLevel();
-                    }
-                }
-                if (!parsed)
-                    readIndex = previousReadIndex;
-            } else {
-                readIndex = previousReadIndex;
-            }
+        if (!shouldReadMe()) {
+            increaseIndexInNestingLevel();
+            return false;
         }
+
+        const auto previousReadIndex = readIndex;
+        const bool parsed = readUntilStartOfValue(key) && parseFloatValue(value);
+        if (parsed)
+            markElementReadAtCurrentNestingLevel();
+        else
+            readIndex = previousReadIndex;
+
         increaseIndexInNestingLevel();
         return parsed;
+    }
+
+    [[nodiscard]] bool parseFloatValue(float& value) noexcept
+    {
+        bool negative = false;
+        if (readChar(u8'-'))
+            negative = true;
+
+        double whole{};
+        if (!parseFloatWholePart(whole))
+            return false;
+
+        double fraction{};
+        double divisor{1.0};
+        if (readChar(u8'.') && !parseFloatFraction(fraction, divisor))
+            return false;
+
+        const auto parsedValue = (whole + fraction / divisor) * (negative ? -1.0 : 1.0);
+        value = static_cast<float>(parsedValue);
+        return std::isfinite(value);
+    }
+
+    [[nodiscard]] bool parseFloatWholePart(double& whole) noexcept
+    {
+        bool hasDigits = false;
+        while (readIndex < buffer.size() && isDigit(buffer[readIndex])) {
+            hasDigits = true;
+            whole = whole * 10.0 + static_cast<double>(buffer[readIndex] - u8'0');
+            ++readIndex;
+            if (whole > static_cast<double>((std::numeric_limits<float>::max)()))
+                return false;
+        }
+        return hasDigits;
+    }
+
+    [[nodiscard]] bool parseFloatFraction(double& fraction, double& divisor) noexcept
+    {
+        std::size_t fractionalDigits{};
+        while (readIndex < buffer.size() && isDigit(buffer[readIndex]) && fractionalDigits < 6) {
+            fraction = fraction * 10.0 + static_cast<double>(buffer[readIndex] - u8'0');
+            divisor *= 10.0;
+            ++fractionalDigits;
+            ++readIndex;
+        }
+
+        return fractionalDigits != 0 && (readIndex == buffer.size() || !isDigit(buffer[readIndex]));
+    }
+
+    [[nodiscard]] static constexpr bool isDigit(char8_t c) noexcept
+    {
+        return c >= u8'0' && c <= u8'9';
     }
 
     [[nodiscard]] bool parseBool(const char8_t* key, bool& value) noexcept
