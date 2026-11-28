@@ -2,7 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <charconv>
+#include <cmath>
+#include <limits>
 #include <cstddef>
 #include <span>
 
@@ -192,12 +193,42 @@ private:
 
     [[nodiscard]] bool writeFloat(float value) noexcept
     {
-        char buffer[32];
-        const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
-        if (result.ec != std::errc{})
+        // Use fixed-point decimal formatting: floating-point to_chars is not
+        // consistently linkable across the project's GCC/Clang/MSVC toolchains.
+        if (!std::isfinite(value))
             return false;
-        for (auto current = buffer; current != result.ptr; ++current) {
-            if (!writeChar(static_cast<char8_t>(*current)))
+
+        constexpr std::uint64_t scale{1'000'000};
+        const auto absoluteValue = std::abs(static_cast<double>(value));
+        const auto scaledValue = absoluteValue * static_cast<double>(scale);
+        if (scaledValue > 9'000'000'000'000'000.0)
+            return false;
+
+        const auto scaled = static_cast<std::uint64_t>(std::floor(scaledValue + 0.5));
+        if (value < 0.0f && !writeChar(u8'-'))
+            return false;
+
+        if (!writeUint(scaled / scale))
+            return false;
+
+        auto fractional = scaled % scale;
+        if (fractional == 0)
+            return true;
+
+        std::array<char8_t, 6> digits{};
+        for (auto i = digits.size(); i > 0; --i) {
+            digits[i - 1] = static_cast<char8_t>(u8'0' + fractional % 10);
+            fractional /= 10;
+        }
+
+        auto digitsEnd = digits.size();
+        while (digitsEnd > 0 && digits[digitsEnd - 1] == u8'0')
+            --digitsEnd;
+
+        if (!writeChar(u8'.'))
+            return false;
+        for (std::size_t i = 0; i < digitsEnd; ++i) {
+            if (!writeChar(digits[i]))
                 return false;
         }
         return true;
