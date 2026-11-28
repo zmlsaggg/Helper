@@ -14,6 +14,7 @@ constinit ManuallyDestructible<GlobalContext> GlobalContext::globalContext;
 #include "Platform/Windows/WindowsPlatformApiImpl.h"
 
 #include <Windows.h>
+#include <cstdio>
 
 void operator delete(void*, std::size_t) noexcept
 {
