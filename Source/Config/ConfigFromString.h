@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <charconv>
 
 #include "ConfigStringConversionState.h"
 #include <Platform/Macros/FunctionAttributes.h>
@@ -60,7 +61,37 @@ public:
             valueSetter(value);
     }
 
+    void real(const char8_t* key, auto&& valueSetter, auto&& /* valueGetter */)
+    {
+        if (float value; parseFloat(key, value))
+            valueSetter(value);
+    }
+
 private:
+    [[nodiscard]] bool parseFloat(const char8_t* key, float& value) noexcept
+    {
+        bool parsed = false;
+        if (shouldReadMe()) {
+            const auto previousReadIndex = readIndex;
+            if (readUntilStartOfValue(key)) {
+                const auto* first = reinterpret_cast<const char*>(buffer.data() + readIndex);
+                const auto* last = reinterpret_cast<const char*>(buffer.data() + buffer.size());
+                const auto result = std::from_chars(first, last, value, std::chars_format::general);
+                if (result.ec == std::errc{} && result.ptr != first) {
+                    readIndex += static_cast<std::size_t>(result.ptr - first);
+                    parsed = true;
+                    markElementReadAtCurrentNestingLevel();
+                } else {
+                    readIndex = previousReadIndex;
+                }
+            } else {
+                readIndex = previousReadIndex;
+            }
+        }
+        increaseIndexInNestingLevel();
+        return parsed;
+    }
+
     [[nodiscard]] bool parseBool(const char8_t* key, bool& value) noexcept
     {
         bool parsed = false;
