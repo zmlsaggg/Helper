@@ -167,7 +167,7 @@ TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
 {
     constexpr auto source = u8"{\\"SpeedMultiplier\\":1.25}";
     ConfigStringConversionState readState{};
-    ConfigFromString reader{std::span<const char8_t>{source, std::size(source)}, readState};
+    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) / sizeof(source[0])}, readState};
     float parsedValue{};
     reader.beginRoot();
     reader.real(u8"SpeedMultiplier", [&parsedValue](float value) { parsedValue = value; }, [] { return 1.0f; });
