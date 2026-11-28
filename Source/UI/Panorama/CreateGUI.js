@@ -783,11 +783,6 @@ u8R"(
     setAutoChatEnabled(!autoChatState.enabled);
   });
 
-  autoChatChannel.SetPanelEvent('oninputsubmit', function () {
-    var selected = autoChatChannel.GetSelectedIndex ? autoChatChannel.GetSelectedIndex() : 0;
-    autoChatState.channel = selected === 1 ? 'say_team' : 'say';
-  });
-
   var autoChatHint = $.CreatePanel('Label', autoChat, '', {
     text: 'Safety: minimum interval 10s; no automatic enable; stopping immediately cancels future sends.',
     style: 'color: #b994ae; margin-top: 12px;'
