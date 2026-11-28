@@ -76,7 +76,7 @@ After following these steps you should receive **libOsiris.so** file in **build/
 
 #### Windows
 
-You need a **DLL injector** to inject (load) **FunBun.dll** into game process.
+You need a **DLL injector** to inject (load) **Osiris.dll** into game process.
 
 Counter-Strike 2 blocks LoadLibrary injection method, so you have to use a manual mapping (aka reflective DLL injection) injector.
 
@@ -84,7 +84,7 @@ Counter-Strike 2 blocks LoadLibrary injection method, so you have to use a manua
 
 #### Linux
 
-You can simply run the following script in the directory containing **libFunBun.so**:
+You can simply run the following script in the directory containing **libOsiris.so**:
 
     sudo gdb -batch-silent -p $(pidof cs2) -ex "call (void*)dlopen(\"$PWD/libOsiris.so\", 2)"
 
@@ -94,7 +94,7 @@ However, this injection method might be detected by VAC as gdb is visible under 
 
 ### Where are the settings stored on disk?
 
-In a configuration file `default.cfg` inside `%appdata%\FunBunCS2\configs` directory on Windows and `$HOME/OsirisCS2/configs` on Linux.
+In a configuration file `default.cfg` inside `%appdata%\OsirisCS2\configs` directory on Windows and `$HOME/OsirisCS2/configs` on Linux.
 
 ## License
 
