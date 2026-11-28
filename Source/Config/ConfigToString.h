@@ -200,12 +200,12 @@ private:
             return false;
 
         constexpr std::uint64_t scale{1'000'000};
-        const auto absoluteValue = std::abs(static_cast<double>(value));
+        const auto absoluteValue = value < 0.0f ? -static_cast<double>(value) : static_cast<double>(value);
         const auto scaledValue = absoluteValue * static_cast<double>(scale);
         if (scaledValue > 9'000'000'000'000'000.0)
             return false;
 
-        const auto scaled = static_cast<std::uint64_t>(std::floor(scaledValue + 0.5));
+        const auto scaled = static_cast<std::uint64_t>(scaledValue + 0.5);
         if (value < 0.0f && !writeChar(u8'-'))
             return false;
 
