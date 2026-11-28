@@ -106,7 +106,7 @@ public:
 private:
     // Small polynomial approximation avoids a dependency on the C math
     // runtime, which is intentionally omitted by the Windows Release build.
-    [[nodiscard]] static void sinCosDegrees(float degrees, float& sine, float& cosine) noexcept
+    static void sinCosDegrees(float degrees, float& sine, float& cosine) noexcept
     {
         constexpr float kPi = 3.14159265358979323846f;
         constexpr float kHalfPi = kPi * 0.5f;
