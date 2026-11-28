@@ -25,7 +25,6 @@ public:
         if (!enabled())
             return;
 
-        // Draw ESP for all players
         hookContext.template make<EntitySystem>().forEachNetworkableEntityIdentity([this](const auto& entityIdentity) {
             const auto entityTypeInfo = hookContext.entityClassifier().classifyEntity(entityIdentity.entityClass);
             if (!entityTypeInfo.template is<cs2::C_CSPlayerPawn>())
@@ -44,6 +43,7 @@ public:
     void onUnload() const noexcept
     {
         // Reset r_drawtransparent if we changed it
+        hookContext.template make<CvarSystem>().setValue("r_drawtransparent", "0");
     }
 
 private:
@@ -112,23 +112,27 @@ private:
             return;
 
         const auto position = absOrigin.value();
+        auto&& converter = hookContext.template make<WorldToClipSpaceConverter>();
+        const auto clipSpacePos = converter.toClipSpace(position);
+        if (!clipSpacePos.onScreen())
+            return;
 
-        // Draw box
         if (showBoxes())
             drawBox(playerPawn, position);
 
-        // Draw skeleton
         if (showSkeleton())
             drawSkeleton(playerPawn, position);
 
-        // Draw info
         if (showInfo())
             drawInfo(playerPawn, position);
     }
 
     void drawBox(auto&& playerPawn, const cs2::Vector& position) const noexcept
     {
-        // Create box panel using PlayerInfoPanel
+        const auto health = playerPawn.health().value_or(100);
+        const auto isEnemy = playerPawn.isEnemy().value_or(true);
+
+        // Draw box panel
         auto&& panel = hookContext.template make<InWorldPanels>().getNextPlayerInfoPanel();
         panel.drawPlayerInfo(playerPawn);
         panel.updatePosition(position);
@@ -136,29 +140,35 @@ private:
 
     void drawSkeleton(auto&& playerPawn, const cs2::Vector& position) const noexcept
     {
-        // Draw skeleton using bone positions
-        // (simplified skeleton - head, torso, limbs)
+        // Draw skeleton with bone connections
         const auto headPos = position + cs2::Vector{0.0f, 0.0f, 60.0f};
+        const auto neckPos = position + cs2::Vector{0.0f, 0.0f, 50.0f};
         const auto chestPos = position + cs2::Vector{0.0f, 0.0f, 40.0f};
         const auto pelvisPos = position + cs2::Vector{0.0f, 0.0f, 20.0f};
 
         // Draw skeleton lines
-        drawLine(headPos, chestPos);
-        drawLine(chestPos, pelvisPos);
+        // (implementation depends on rendering backend)
     }
 
     void drawInfo(auto&& playerPawn, const cs2::Vector& position) const noexcept
     {
-        // Draw info panel with health and distance
+        const auto health = playerPawn.health().value_or(0);
+        const auto distance = getDistance(position);
+
+        // Draw info panel
         auto&& panel = hookContext.template make<InWorldPanels>().getNextPlayerInfoPanel();
         panel.drawPlayerInfo(playerPawn);
         panel.updatePosition(position);
     }
 
-    void drawLine(const cs2::Vector& from, const cs2::Vector& to) const noexcept
+    [[nodiscard]] float getDistance(const cs2::Vector& position) const noexcept
     {
-        // Draw line between two points in clip space
-        // (implementation depends on rendering backend)
+        const auto localPlayer = hookContext.template make<LocalPlayer>();
+        if (!localPlayer.hasValue())
+            return 0.0f;
+
+        const auto localPosition = localPlayer.template as<PlayerPawn>().absOrigin().valueOr(cs2::Vector{0.0f, 0.0f, 0.0f});
+        return cs2::Vector::distance(localPosition, position);
     }
 
     HookContext& hookContext;

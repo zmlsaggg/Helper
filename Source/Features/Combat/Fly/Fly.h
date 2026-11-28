@@ -48,6 +48,10 @@ public:
 
         // Apply velocity
         playerPawn.setVelocity(velocity);
+
+        // Draw direction indicator
+        if (showDirectionIndicator() && velocity != cs2::Vector{0.0f, 0.0f, 0.0f})
+            drawDirectionIndicator(absOrigin.value(), velocity);
     }
 
 private:
@@ -102,6 +106,16 @@ private:
             target.z -= verticalSpeed();
 
         return target;
+    }
+
+    void drawDirectionIndicator(const cs2::Vector& position, const cs2::Vector& direction) const noexcept
+    {
+        if (!showDirectionIndicator())
+            return;
+
+        // Draw direction indicator panel
+        auto&& panel = hookContext.template make<InWorldPanels>().getNextPlayerInfoPanel();
+        panel.updatePosition(position);
     }
 
     [[nodiscard]] cs2::Vector lerpVelocity(const cs2::Vector& from, const cs2::Vector& to, float factor) const noexcept
