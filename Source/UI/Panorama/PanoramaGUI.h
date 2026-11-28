@@ -120,8 +120,9 @@ public:
 
         state().settingsPanelHandle = settings.getHandle();
 
-        // Do not execute the large creation script again if its root panel already exists.
-        if (!mainMenu.findChildInLayoutFile("OsirisMenuTab"))
+        // The root panel is first created under JsSettings, then moved into
+        // JsMainMenuContent. Check both locations before retrying creation.
+        if (!settings.findChildInLayoutFile("OsirisMenuTab") && !mainMenu.findChildInLayoutFile("OsirisMenuTab"))
             uiEngine().runScript(settings, reinterpret_cast<const char*>(
 #include "CreateGUI.js"
 ));
