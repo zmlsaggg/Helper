@@ -8,5 +8,7 @@ using ConVarTypes = TypeList<
     cs2::viewmodel_fov,
     cs2::cl_crosshaircolor_r,
     cs2::cl_crosshaircolor_g,
-    cs2::cl_crosshaircolor_b
+    cs2::cl_crosshaircolor_b,
+    cs2::r_drawopaque,
+    cs2::r_drawtransparent
 >;

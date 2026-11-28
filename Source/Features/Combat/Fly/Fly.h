@@ -18,7 +18,7 @@ public:
             return;
 
         auto&& playerPawn = hookContext.localPlayerController().pawn();
-        if (!playerPawn.hasValue())
+        if (!playerPawn)
             return;
 
         const auto key = flyKey();
@@ -33,7 +33,7 @@ public:
         if (!keyDown)
             return;
 
-        auto& pawn = *playerPawn.value();
+        auto& pawn = *playerPawn;
         const auto speed = speedMultiplier();
 
         float forward = 0, right = 0, up = 0;

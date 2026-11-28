@@ -15,6 +15,8 @@ CONVAR(viewmodel_fov, float);
 CONVAR(cl_crosshaircolor_r, int);
 CONVAR(cl_crosshaircolor_g, int);
 CONVAR(cl_crosshaircolor_b, int);
+CONVAR(r_drawopaque, int);
+CONVAR(r_drawtransparent, int);
 
 }
 

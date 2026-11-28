@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include <CS2/Classes/CCvar.h>
+
 #include <CS2/Classes/ConVar.h>
 
 template <typename HookContext>
@@ -33,6 +34,17 @@ public:
     [[nodiscard]] auto getConVarValue() const
     {
         return getValue<ConVarType>(hookContext.getConVarsBase().template getConVar<ConVarType>());
+    }
+
+    template <typename ConVarType>
+    void setConVarValue(typename ConVarType::ValueType value)
+    {
+        const auto conVar = hookContext.getConVarsBase().template getConVar<ConVarType>();
+        if (!conVar)
+            return;
+
+        if (hookContext.patternSearchResults().template get<OffsetToConVarValueType>().of(conVar).toOptional().equal(conVarValueTypeForType<typename ConVarType::ValueType>()).valueOr(false))
+            writeValueAs<typename ConVarType::ValueType>(conVar, value);
     }
 
 private:
@@ -67,6 +79,15 @@ private:
         T value;
         std::memcpy(&value, pointerToValue, sizeof(value));
         return value;
+    }
+
+    template <typename T>
+    void writeValueAs(cs2::ConVar* conVar, T value) const
+    {
+        const auto pointerToValue = hookContext.patternSearchResults().template get<OffsetToConVarValue>().of(conVar).get();
+        if (!pointerToValue)
+            return;
+        std::memcpy(pointerToValue, &value, sizeof(value));
     }
 
     [[nodiscard]] cs2::CCvar::ConVarList* getConVarList() const noexcept
