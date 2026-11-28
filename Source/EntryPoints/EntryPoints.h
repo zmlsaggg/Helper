@@ -4,11 +4,19 @@
 #include "Hooks/PeepEventsHook.h"
 #include "Utils/ReturnAddress.h"
 
+[[NOINLINE]] void tryInitializePanoramaGUI(auto& hookContext) noexcept
+{
+    if (hookContext.panoramaGuiState().guiPanelHandle.isValid())
+        return;
+
+    if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu)
+        hookContext.template make<PanoramaGUI>().init(hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
+}
+
 [[NOINLINE]] void finishInit(auto& hookContext)
 {
     hookContext.entityClassifier().init(hookContext);
-    if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu)
-        hookContext.template make<PanoramaGUI>().init(hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
+    tryInitializePanoramaGUI(hookContext);
     hookContext.config().init();
     hookContext.config().scheduleLoad();
     hookContext.hooks().peepEventsHook.disable();
@@ -25,6 +33,10 @@ int SDLHook_PeepEvents(void* events, int numevents, int action, unsigned minType
 
     if (initInProgress)
         finishInit(hookContext);
+    else
+        // Retry on SDL's event thread: the main-menu Panorama panel may not
+        // exist yet when the first event completes global initialization.
+        tryInitializePanoramaGUI(hookContext);
 
     return hookContext.hooks().peepEventsHook.original(events, numevents, action, minType, maxType);
 }
