@@ -3,8 +3,6 @@
 #include "GlobalContext/GlobalContext.h"
 #include "Hooks/PeepEventsHook.h"
 #include "Utils/ReturnAddress.h"
-#include "Features/Visuals/Wallhack/Wallhack.h"
-#include "Features/Combat/Fly/Fly.h"
 
 [[NOINLINE]] void finishInit(auto& hookContext)
 {
@@ -76,8 +74,6 @@ void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept
     SoundFeatures{hookContext.soundWatcherState(), hookContext.hooks().viewRenderHook, hookContext}.runOnViewMatrixUpdate();
 
     hookContext.make<NoScopeInaccuracyVis>().update();
-    // Temporary isolation: bypass the two newly added per-frame callbacks to locate
-    // the immediate post-injection crash without changing their implementations.
     hookContext.make<RenderingHookEntityLoop>().run();
     hookContext.make<GlowSceneObjects>().removeUnreferencedObjects();
     hookContext.make<DefusingAlert>().run();
@@ -93,7 +89,7 @@ void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept
     if (unloadFlag) {
         unload(hookContext);
         HookContext<GlobalContext>::destroyGlobalContext();
-    }  
+    }
 }
 
 LINUX_ONLY([[gnu::aligned(8)]]) std::uint64_t PlayerPawn_sceneObjectUpdater(cs2::C_CSPlayerPawn* playerPawn, void* unknown, bool unknownBool) noexcept

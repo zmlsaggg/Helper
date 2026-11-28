@@ -175,8 +175,10 @@ protected:
     {
         setVariableExpectationsV10();
         get<fly_vars::Enabled>() = false;
-        get<fly_vars::SpeedMultiplier>() = 1.0f;
-        get<fly_vars::FlyKey>() = 0;
+        get<fly_vars::Speed>() = 300.0f;
+        get<fly_vars::VerticalSpeed>() = 200.0f;
+        get<fly_vars::Acceleration>() = 0.1f;
+        get<fly_vars::ShowDirectionIndicator>() = true;
         get<wallhack_vars::Enabled>() = false;
     }
 
