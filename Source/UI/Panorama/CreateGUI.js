@@ -1,4 +1,4 @@
-u8R"(
+﻿u8R"(
 $.Osiris = (function () {
   var activeTab;
   var activeSubTab = {};
@@ -348,7 +348,15 @@ $.Osiris = (function () {
   
     return content;
   };
+)")
+u8R"(
+)")
+u8R"(
+)")
+u8R"(
 
+)")
+u8R"(
   var createCombatTab = function() {
     var tab = $.CreatePanel('Panel', settingContent, 'combat', {
       useglobalcontext: "true",
@@ -452,6 +460,8 @@ $.Osiris = (function () {
       style: "y: 5px; vertical-align: top; width: 300px; height: 300px; horizontal-align: center;"
     });
     previewPanel.EquipPlayerWithItem(itemId);
+)")
+u8R"(
     $.CreatePanel('Label', container, labelId, { style: 'vertical-align: top; horizontal-align: center;' });
   };
 
@@ -550,7 +560,11 @@ u8R"(
     $.CreatePanel('Panel', sliderContainer, id + '_color', {
         style: "border: 2px solid #000000a0; border-radius: 5px; margin-left: 10px; width: 25px; vertical-align: center; height: 25px;"
     });
+)")
+u8R"(
   }
+)")
+u8R"(
 )"
 // split the string literal because MSVC does not support string literals longer than 16k chars - error C2026
 u8R"(
@@ -744,10 +758,16 @@ u8R"(
     autoChatState.enabled = enabled;
     autoChatToggleLabel.text = enabled ? 'Stop Auto Chat' : 'Start Auto Chat';
     autoChatStatus.text = enabled ? 'Status: On — next message in ' + autoChatState.interval + 's' : 'Status: Off';
+)")
+u8R"(
 
     if (enabled)
+)")
+u8R"(
       scheduleAutoChat(autoChatState.generation);
   };
+)")
+u8R"(
 
   autoChatSend.SetPanelEvent('onactivate', function () {
     var phrase = sanitizeAutoChatPhrase(autoChatPhrase.text);
@@ -910,6 +930,8 @@ u8R"(
   });
   modelGlowPreviewWeapon.SetItemItemId(makeFauxItemId(16, 255), {});
 
+)")
+u8R"(
   var grenadeModelGlowPreview = $.CreatePanel('Panel', weaponModelGlowPreview, '', { style: 'flow-children: down;' });
 
   var grenadeModelGlowPreviewRow1 = $.CreatePanel('Panel', grenadeModelGlowPreview, '', { style: 'flow-children: right;' });
@@ -1027,6 +1049,8 @@ u8R"(
     for (var i = 0; i < previewCategories.length; ++i)
       previewCategories[i].panel.visible = i === selectedIndex;
   };
+)")
+u8R"(
 
   var addPreviewCategory = function (label, items) {
     var index = previewCategories.length;
@@ -1060,6 +1084,8 @@ u8R"(
         });
         itemButton.SetPanelEvent('onactivate', function () {
           viewmodelPreview.SetItemItemId(makeFauxItemId(item.defIndex, item.paintKit || 0), {});
+)")
+u8R"(
         });
       })(items[j], itemRow);
     }
@@ -1169,6 +1195,3 @@ u8R"(
   separator(weaponSoundVisualization);
   createYesNoDropDown(weaponSoundVisualization, "Visualize Weapon Reload Sound", 'sound', 'visualize_reload_sound');
 
-  $.Osiris.navigateToTab('hud');
-})();
-)"

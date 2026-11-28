@@ -117,10 +117,7 @@ public:
             state().settingsPanelHandle = settings.getHandle();
 
         uiEngine().runScript(settings, reinterpret_cast<const char*>(
-#include "CreateGUI_part1.js"
-));
-        uiEngine().runScript(settings, reinterpret_cast<const char*>(
-#include "CreateGUI_part2.js"
+#include "CreateGUI.js"
 ));
 
         uiEngine().runScript(mainMenu, R"(
