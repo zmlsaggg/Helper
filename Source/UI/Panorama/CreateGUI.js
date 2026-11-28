@@ -83,7 +83,7 @@ $.Osiris = (function () {
   var createNavbar = function () {
     var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel, '', {
       class: "content-navbar__tabs content-navbar__tabs--noflow",
-      style: "background-color: #190f22e8; border-bottom: 1px solid #f064b6;"
+      style: "z-index: 2; background-color: #190f22e8; border-bottom: 1px solid #f064b6;"
     });
 
     var leftContainer = $.CreatePanel('Panel', navbar, '', {
@@ -91,7 +91,7 @@ $.Osiris = (function () {
     });
 
     var brandLabel = $.CreatePanel('Label', leftContainer, 'ZmlsagBrand', {
-      text: "zmlsag",
+      text: "FunBun",
       style: "color: #ff79c8; font-size: 22px; font-weight: bold; letter-spacing: 1px; vertical-align: center; margin-right: 18px; text-shadow: 0px 0px 8px #f064b655;"
     });
 
@@ -166,7 +166,7 @@ $.Osiris = (function () {
 
     var unloadButton = $.CreatePanel('Button', rightContainer, 'UnloadButton', {
         class: "content-navbar__tabs__btn",
-        onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Unload zmlsag', 'Are you sure you want to unload zmlsag?', '', 'UNLOAD', function() { $.Osiris.goHome(); $.Osiris.addCommand('unload'); }, 'RETURN', function() {}, 'dim');"
+        onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Unload FunBun', 'Are you sure you want to unload FunBun?', '', 'UNLOAD', function() { $.Osiris.goHome(); $.Osiris.addCommand('unload'); }, 'RETURN', function() {}, 'dim');"
     });
 
     unloadButton.SetPanelEvent('onmouseover', function () { UiToolkitAPI.ShowTextTooltip('UnloadButton', 'Unload'); });
@@ -254,7 +254,7 @@ $.Osiris = (function () {
   var createSunsetBackdrop = function () {
     var scene = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SunsetBackdrop', {
       hittest: 'false',
-      style: "position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
+      style: "z-index: 0; position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
     });
 
     var sun = $.CreatePanel('Panel', scene, 'SunsetDisc', {
@@ -318,7 +318,8 @@ $.Osiris = (function () {
   createNavbar();
 
   var settingContent = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SettingsMenuContent', {
-    class: "full-width full-height"
+    class: "full-width full-height",
+    style: "z-index: 2;"
   });
 
   var createTab = function(tabName) {
