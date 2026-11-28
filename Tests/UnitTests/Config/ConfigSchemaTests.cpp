@@ -165,13 +165,14 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsSavedOnce) {
 
 TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
 {
-    constexpr auto source = u8"{\\"SpeedMultiplier\\":1.25}";
+    constexpr auto source = u8R"({"SpeedMultiplier":1.25})";
     ConfigStringConversionState readState{};
-    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) / sizeof(source[0])}, readState};
+    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) / sizeof(source[0]) - 1}, readState};
     float parsedValue{};
     reader.beginRoot();
     reader.real(u8"SpeedMultiplier", [&parsedValue](float value) { parsedValue = value; }, [] { return 1.0f; });
-    reader.endRoot();
+    const auto readSize = reader.endRoot();
+    EXPECT_GT(readSize, 0u);
     EXPECT_FLOAT_EQ(parsedValue, 1.25f);
 
     std::array<char8_t, 64> output{};
@@ -180,5 +181,6 @@ TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
     writer.beginRoot();
     writer.real(u8"SpeedMultiplier", [](float) {}, [] { return 1.25f; });
     const auto written = writer.endRoot();
-    EXPECT_EQ(std::u8string_view{output.data(), written}, u8"{\\"SpeedMultiplier\\":1.25}");
+    const std::u8string_view serialized{output.data(), written};
+    EXPECT_EQ(serialized, u8R"({"SpeedMultiplier":1.25})");
 }
