@@ -195,7 +195,7 @@ private:
     {
         // Use fixed-point decimal formatting: floating-point to_chars is not
         // consistently linkable across the project's GCC/Clang/MSVC toolchains.
-        if (value > (std::numeric_limits<float>::max)() || value < -(std::numeric_limits<float>::max)())
+        if (!(value <= (std::numeric_limits<float>::max)() && value >= -(std::numeric_limits<float>::max)()))
             return false;
 
         constexpr std::uint64_t scale{1'000'000};
