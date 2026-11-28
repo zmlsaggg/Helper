@@ -8,7 +8,7 @@ $.FunBun = (function () {
       const rootPanel = $.CreatePanel('Panel', $.GetContextPanel(), 'FunBunMenuTab', {
         class: "mainmenu-content__container",
         useglobalcontext: "true",
-        style: "background-color: #100b19d8; border: 1px solid #f064b6; box-shadow: 0px 0px 18px #000000cc;"
+        style: "background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36)); border: 1px solid #f064b6; box-shadow: 0px 0px 18px #000000cc;"
       });
 
       rootPanel.visible = false;
@@ -313,8 +313,9 @@ $.FunBun = (function () {
     $.Schedule(1.1, animateFireflies);
   };
 
-  createSunsetBackdrop();
-
+  // Keep the decorative background on the root panel itself. A full-size
+  // first child participates in Panorama's vertical flow and pushes the
+  // navbar and settings content outside the visible menu.
   createNavbar();
 
   var settingContent = $.CreatePanel('Panel', $.FunBun.rootPanel, 'SettingsMenuContent', {
