@@ -1195,4 +1195,6 @@ u8R"(
   separator(weaponSoundVisualization);
   createYesNoDropDown(weaponSoundVisualization, "Visualize Weapon Reload Sound", 'sound', 'visualize_reload_sound');
 
+  $.Osiris.navigateToTab('hud');
+})();
 )"
