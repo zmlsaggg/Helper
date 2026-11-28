@@ -1,167 +1,123 @@
 #pragma once
 
-#include <Features/Combat/Fly/FlyConfigVariables.h>
+#include <cmath>
+#include <Features/Common/InWorldPanels.h>
+#include <Features/Common/RenderingHookEntityLoop.h>
+#include <Features/Visuals/ModelGlow/ModelGlow.h>
+#include <GameClient/Entities/BaseEntity.h>
+#include <GameClient/Entities/BaseModelEntity.h>
+#include <GameClient/Entities/PlayerPawn.h>
+#include <GameClient/LocalPlayer/LocalPlayer.h>
+#include <GameClient/WorldToScreen/WorldToClipSpaceConverter.h>
+#include <GameClient/Panorama/PanoramaUiPanel.h>
+#include <Utils/ConfigVariable.h>
 
-#if defined(_WIN32)
-#include <Windows.h>
-#else
-#include <dlfcn.h>
-#endif
-
-namespace fly_key {
-#if defined(_WIN32)
-constexpr int kLeftShift = VK_LSHIFT;
-constexpr int kRightShift = VK_RSHIFT;
-constexpr int kLeftControl = VK_LCONTROL;
-constexpr int kRightControl = VK_RCONTROL;
-constexpr int kLeftAlt = VK_LMENU;
-constexpr int kRightAlt = VK_RMENU;
-constexpr int kW = 'W';
-constexpr int kS = 'S';
-constexpr int kA = 'A';
-constexpr int kD = 'D';
-constexpr int kSpace = VK_SPACE;
-#else
-// SDL3 scancode values. The game already loads SDL3; resolve its public
-// keyboard-state function at runtime so Linux builds do not need SDL headers.
-constexpr int kLeftShift = 225;
-constexpr int kRightShift = 229;
-constexpr int kLeftControl = 224;
-constexpr int kRightControl = 228;
-constexpr int kLeftAlt = 226;
-constexpr int kRightAlt = 230;
-constexpr int kW = 26;
-constexpr int kS = 22;
-constexpr int kA = 4;
-constexpr int kD = 7;
-constexpr int kSpace = 44;
-#endif
-}
+#include "FlyConfigVariables.h"
 
 template <typename HookContext>
 class Fly {
 public:
-    Fly(HookContext& hookContext) noexcept
+    explicit Fly(HookContext& hookContext) noexcept
         : hookContext{hookContext}
+        , velocity{0.0f, 0.0f, 0.0f}
     {
     }
 
-    void onFrame() noexcept
+    void run() const noexcept
     {
         if (!enabled())
             return;
 
-        auto playerController = hookContext.localPlayerController();
-        auto&& playerPawn = playerController.pawn();
-        if (!playerPawn)
+        auto&& localPlayer = hookContext.template make<LocalPlayer>();
+        if (!localPlayer.hasValue())
             return;
 
-        const auto key = flyKey();
-        bool keyDown = false;
-
-        switch (key) {
-        case 0: keyDown = isKeyDown(fly_key::kLeftShift) || isKeyDown(fly_key::kRightShift); break;
-        case 1: keyDown = isKeyDown(fly_key::kLeftControl) || isKeyDown(fly_key::kRightControl); break;
-        case 2: keyDown = isKeyDown(fly_key::kLeftAlt) || isKeyDown(fly_key::kRightAlt); break;
-        }
-
-        if (!keyDown)
+        auto&& playerPawn = localPlayer.template as<PlayerPawn>();
+        const auto absOrigin = playerPawn.absOrigin();
+        if (!absOrigin.hasValue())
             return;
 
-        auto& pawn = *playerPawn;
-        const auto speed = speedMultiplier();
+        // Get current velocity
+        auto&& currentVelocity = playerPawn.velocity().valueOr(cs2::Vector{0.0f, 0.0f, 0.0f});
 
-        float forward = 0, right = 0, up = 0;
-        if (isKeyDown(fly_key::kW)) forward = 1;
-        if (isKeyDown(fly_key::kS)) forward = -1;
-        if (isKeyDown(fly_key::kD)) right = 1;
-        if (isKeyDown(fly_key::kA)) right = -1;
-        if (isKeyDown(fly_key::kSpace)) up = 1;
+        // Calculate target velocity based on input
+        cs2::Vector targetVelocity = calculateTargetVelocity(playerPawn, currentVelocity);
 
-        // Get the player's yaw from the view angles.
-        float yaw = 0;
-        auto* controllerPtr = reinterpret_cast<cs2::CCSPlayerController*>(&playerController);
-        if (controllerPtr) {
-            // m_vecViewAngles offset in CCSPlayerController.
-            yaw = *reinterpret_cast<float*>(reinterpret_cast<char*>(controllerPtr) + 0x108);
-        }
+        // Smooth transition to target velocity
+        velocity = lerpVelocity(currentVelocity, targetVelocity, accelerationFactor());
 
-        float sinYaw = 0;
-        float cosYaw = 1;
-        sinCosDegrees(yaw, sinYaw, cosYaw);
-
-        const float vx = (right * cosYaw - forward * sinYaw) * speed * 300.0f;
-        const float vy = (right * sinYaw + forward * cosYaw) * speed * 300.0f;
-        const float vz = up * speed * 200.0f;
-
-        // Write velocity directly to the pawn entity at offset 0x1B0.
-        auto* velocityPtr = *reinterpret_cast<float**>(reinterpret_cast<char*>(&pawn) + 0x1B0);
-        if (velocityPtr) {
-            velocityPtr[0] = vx;
-            velocityPtr[1] = vy;
-            velocityPtr[2] = vz;
-        }
+        // Apply velocity
+        playerPawn.setVelocity(velocity);
     }
 
 private:
-    // Small polynomial approximation avoids a dependency on the C math
-    // runtime, which is intentionally omitted by the Windows Release build.
-    static void sinCosDegrees(float degrees, float& sine, float& cosine) noexcept
-    {
-        constexpr float kPi = 3.14159265358979323846f;
-        constexpr float kHalfPi = kPi * 0.5f;
-        constexpr float kTwoPi = kPi * 2.0f;
-
-        float angle = degrees * (kPi / 180.0f);
-        while (angle > kPi)
-            angle -= kTwoPi;
-        while (angle < -kPi)
-            angle += kTwoPi;
-
-        float cosineSign = 1.0f;
-        if (angle > kHalfPi) {
-            angle = kPi - angle;
-            cosineSign = -1.0f;
-        } else if (angle < -kHalfPi) {
-            angle = -kPi - angle;
-            cosineSign = -1.0f;
-        }
-
-        const float squared = angle * angle;
-        sine = angle * (1.0f + squared * (-1.0f / 6.0f + squared * (1.0f / 120.0f + squared * (-1.0f / 5040.0f + squared / 362880.0f))));
-        cosine = cosineSign * (1.0f + squared * (-1.0f / 2.0f + squared * (1.0f / 24.0f + squared * (-1.0f / 720.0f + squared / 40320.0f))));
-    }
-
-    [[nodiscard]] static bool isKeyDown(int key) noexcept
-    {
-#if defined(_WIN32)
-        return (GetAsyncKeyState(key) & 0x8000) != 0;
-#else
-        using SDLGetKeyboardState = const bool* (*)(int*);
-        const auto getKeyboardState = reinterpret_cast<SDLGetKeyboardState>(dlsym(RTLD_DEFAULT, "SDL_GetKeyboardState"));
-        if (!getKeyboardState)
-            return false;
-
-        int keyCount = 0;
-        const auto* keyboardState = getKeyboardState(&keyCount);
-        return keyboardState && key >= 0 && key < keyCount && keyboardState[key];
-#endif
-    }
-
     [[nodiscard]] bool enabled() const noexcept
     {
         return GET_CONFIG_VAR(fly_vars::Enabled);
     }
 
-    [[nodiscard]] int flyKey() const noexcept
+    [[nodiscard]] float speed() const noexcept
     {
-        return GET_CONFIG_VAR(fly_vars::FlyKey);
+        return GET_CONFIG_VAR(fly_vars::Speed).value_or(300.0f);
     }
 
-    [[nodiscard]] float speedMultiplier() const noexcept
+    [[nodiscard]] float verticalSpeed() const noexcept
     {
-        return GET_CONFIG_VAR(fly_vars::SpeedMultiplier);
+        return GET_CONFIG_VAR(fly_vars::VerticalSpeed).value_or(200.0f);
     }
 
-    HookContext& hookContext;
+    [[nodiscard]] float accelerationFactor() const noexcept
+    {
+        return GET_CONFIG_VAR(fly_vars::Acceleration).value_or(0.1f);
+    }
+
+    [[nodiscard]] bool showDirectionIndicator() const noexcept
+    {
+        return GET_CONFIG_VAR(fly_vars::ShowDirectionIndicator).value_or(true);
+    }
+
+    [[nodiscard]] cs2::Vector calculateTargetVelocity(auto&& playerPawn, const cs2::Vector& currentVelocity) const noexcept
+    {
+        cs2::Vector target{0.0f, 0.0f, 0.0f};
+
+        // Get forward and right vectors from player view
+        const auto eyePosition = playerPawn.eyePosition().valueOr(cs2::Vector{0.0f, 0.0f, 0.0f});
+        const auto forward = playerPawn.forward().valueOr(cs2::Vector{0.0f, 1.0f, 0.0f});
+        const auto right = playerPawn.right().valueOr(cs2::Vector{1.0f, 0.0f, 0.0f});
+
+        // Horizontal movement (WASD)
+        if (input()->GetKeyState(VK_W))
+            target += forward * speed();
+        if (input()->GetKeyState(VK_S))
+            target -= forward * speed();
+        if (input()->GetKeyState(VK_D))
+            target += right * speed();
+        if (input()->GetKeyState(VK_A))
+            target -= right * speed();
+
+        // Vertical movement (Space/Shift)
+        if (input()->GetKeyState(VK_SPACE))
+            target.z += verticalSpeed();
+        if (input()->GetKeyState(VK_SHIFT))
+            target.z -= verticalSpeed();
+
+        return target;
+    }
+
+    [[nodiscard]] cs2::Vector lerpVelocity(const cs2::Vector& from, const cs2::Vector& to, float factor) const noexcept
+    {
+        return cs2::Vector{
+            from.x + (to.x - from.x) * factor,
+            from.y + (to.y - from.y) * factor,
+            from.z + (to.z - from.z) * factor
+        };
+    }
+
+    [[nodiscard]] decltype(auto) input() const noexcept
+    {
+        return hookContext.template make<InWorldPanels>().input();
+    }
+
+    mutable HookContext& hookContext;
+    mutable cs2::Vector velocity;
 };
