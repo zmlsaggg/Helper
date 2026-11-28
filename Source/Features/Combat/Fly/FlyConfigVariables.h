@@ -1,11 +1,12 @@
 #pragma once
 
-#include <Utils/ConfigVariable.h>
+#include <Config/ConfigVariable.h>
 
-namespace fly_vars {
-    const ConfigVariable<bool> Enabled{false, "Enabled"};
-    const ConfigVariable<float> Speed{300.0f, "Speed", 100.0f, 1000.0f};
-    const ConfigVariable<float> VerticalSpeed{200.0f, "Vertical Speed", 50.0f, 500.0f};
-    const ConfigVariable<float> Acceleration{0.1f, "Acceleration", 0.01f, 1.0f};
-    const ConfigVariable<bool> ShowDirectionIndicator{true, "Show Direction Indicator"};
+namespace fly_vars
+{
+CONFIG_VARIABLE(Enabled, bool, false);
+CONFIG_VARIABLE(Speed, float, 300.0f);
+CONFIG_VARIABLE(VerticalSpeed, float, 200.0f);
+CONFIG_VARIABLE(Acceleration, float, 0.1f);
+CONFIG_VARIABLE(ShowDirectionIndicator, bool, true);
 }
