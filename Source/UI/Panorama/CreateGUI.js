@@ -1,11 +1,11 @@
 ﻿u8R"(
-$.Osiris = (function () {
+$.FunBun = (function () {
   var activeTab;
   var activeSubTab = {};
 
   return {
     rootPanel: (function () {
-      const rootPanel = $.CreatePanel('Panel', $.GetContextPanel(), 'OsirisMenuTab', {
+      const rootPanel = $.CreatePanel('Panel', $.GetContextPanel(), 'FunBunMenuTab', {
         class: "mainmenu-content__container",
         useglobalcontext: "true",
         style: "background-color: #100b19d8; border: 1px solid #f064b6; box-shadow: 0px 0px 18px #000000cc;"
@@ -21,7 +21,7 @@ $.Osiris = (function () {
             rootPanel.SetReadyForDisplay(false);
             return true;
           } else if (rootPanel.visible === true) {
-            $.DispatchEvent('MainMenuTabShown', 'OsirisMenuTab');
+            $.DispatchEvent('MainMenuTabShown', 'FunBunMenuTab');
           }
         }
         return false;
@@ -81,17 +81,17 @@ $.Osiris = (function () {
 
 (function () {
   var createNavbar = function () {
-    var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel, '', {
+    var navbar = $.CreatePanel('Panel', $.FunBun.rootPanel, '', {
       class: "content-navbar__tabs content-navbar__tabs--noflow",
-      style: "background-color: #190f22e8; border-bottom: 1px solid #f064b6;"
+      style: "z-index: 2; background-color: #190f22e8; border-bottom: 1px solid #f064b6;"
     });
 
     var leftContainer = $.CreatePanel('Panel', navbar, '', {
       style: "horizontal-align: left; flow-children: right; height: 100%; margin-left: 15px;"
     });
 
-    var brandLabel = $.CreatePanel('Label', leftContainer, 'ZmlsagBrand', {
-      text: "zmlsag",
+    var brandLabel = $.CreatePanel('Label', leftContainer, 'FunBunBrand', {
+      text: "FunBun",
       style: "color: #ff79c8; font-size: 22px; font-weight: bold; letter-spacing: 1px; vertical-align: center; margin-right: 18px; text-shadow: 0px 0px 8px #f064b655;"
     });
 
@@ -105,7 +105,7 @@ $.Osiris = (function () {
     var restoreDefaultsButton = $.CreatePanel('Button', leftContainer, 'RestoreDefaultsButton', {
       class: "content-navbar__tabs__btn",
       style: "margin-left: 8px;",
-      onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Restore Defaults', 'Are you sure you want to restore default settings in the active config file (default.cfg)?', '', 'RESTORE DEFAULTS', function() { $.Osiris.addCommand('restore_defaults'); }, 'RETURN', function() {}, 'dim');"
+      onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Restore Defaults', 'Are you sure you want to restore default settings in the active config file (default.cfg)?', '', 'RESTORE DEFAULTS', function() { $.FunBun.addCommand('restore_defaults'); }, 'RETURN', function() {}, 'dim');"
     });
 
     restoreDefaultsButton.SetPanelEvent('onmouseover', function () { UiToolkitAPI.ShowTextTooltip('RestoreDefaultsButton', 'Restore defaults'); });
@@ -123,7 +123,7 @@ $.Osiris = (function () {
     var combatTabButton = $.CreatePanel('RadioButton', centerContainer, 'combat_button', {
       group: "SettingsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToTab('combat');"
+      onactivate: "$.FunBun.navigateToTab('combat');"
     });
 
     $.CreatePanel('Label', combatTabButton, '', { text: "Combat", style: "color: #f8e5f4; font-weight: bold;" });
@@ -131,7 +131,7 @@ $.Osiris = (function () {
     var hudTabButton = $.CreatePanel('RadioButton', centerContainer, 'hud_button', {
       group: "SettingsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToTab('hud');"
+      onactivate: "$.FunBun.navigateToTab('hud');"
     });
 
     $.CreatePanel('Label', hudTabButton, '', { text: "HUD", style: "color: #f8e5f4; font-weight: bold;" });
@@ -139,7 +139,7 @@ $.Osiris = (function () {
     var visualsTabButton = $.CreatePanel('RadioButton', centerContainer, 'visuals_button', {
       group: "SettingsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToTab('visuals');"
+      onactivate: "$.FunBun.navigateToTab('visuals');"
     });
 
     $.CreatePanel('Label', visualsTabButton, '', { text: "Visuals", style: "color: #f8e5f4; font-weight: bold;" });
@@ -147,7 +147,7 @@ $.Osiris = (function () {
     var soundTabButton = $.CreatePanel('RadioButton', centerContainer, 'sound_button', {
       group: "SettingsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToTab('sound');"
+      onactivate: "$.FunBun.navigateToTab('sound');"
     });
 
     $.CreatePanel('Label', soundTabButton, '', { text: "Sound", style: "color: #f8e5f4; font-weight: bold;" });
@@ -155,7 +155,7 @@ $.Osiris = (function () {
     var autoChatTabButton = $.CreatePanel('RadioButton', centerContainer, 'auto_chat_button', {
       group: "SettingsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToTab('auto_chat');"
+      onactivate: "$.FunBun.navigateToTab('auto_chat');"
     });
 
     $.CreatePanel('Label', autoChatTabButton, '', { text: "Auto Chat", style: "color: #f8e5f4; font-weight: bold;" });
@@ -166,7 +166,7 @@ $.Osiris = (function () {
 
     var unloadButton = $.CreatePanel('Button', rightContainer, 'UnloadButton', {
         class: "content-navbar__tabs__btn",
-        onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Unload zmlsag', 'Are you sure you want to unload zmlsag?', '', 'UNLOAD', function() { $.Osiris.goHome(); $.Osiris.addCommand('unload'); }, 'RETURN', function() {}, 'dim');"
+        onactivate: "UiToolkitAPI.ShowGenericPopupOneOptionCustomCancelBgStyle('Unload FunBun', 'Are you sure you want to unload FunBun?', '', 'UNLOAD', function() { $.FunBun.goHome(); $.FunBun.addCommand('unload'); }, 'RETURN', function() {}, 'dim');"
     });
 
     unloadButton.SetPanelEvent('onmouseover', function () { UiToolkitAPI.ShowTextTooltip('UnloadButton', 'Unload'); });
@@ -180,7 +180,7 @@ $.Osiris = (function () {
   };
 
   var createVisualsNavbar = function () {
-    var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel.FindChildInLayoutFile('visuals'), '', {
+    var navbar = $.CreatePanel('Panel', $.FunBun.rootPanel.FindChildInLayoutFile('visuals'), '', {
       class: "content-navbar__tabs content-navbar__tabs--dark content-navbar__tabs--noflow",
       style: "background-color: #211329f5; border-bottom: 1px solid #f064b6;"
     });
@@ -192,7 +192,7 @@ $.Osiris = (function () {
     var playerInfoTabButton = $.CreatePanel('RadioButton', centerContainer, 'player_info_button', {
       group: "VisualsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToSubTab('visuals', 'player_info');"
+      onactivate: "$.FunBun.navigateToSubTab('visuals', 'player_info');"
     });
 
     $.CreatePanel('Label', playerInfoTabButton, '', { text: "Player Info In World", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
@@ -200,7 +200,7 @@ $.Osiris = (function () {
     var outlineGlowTabButton = $.CreatePanel('RadioButton', centerContainer, 'outline_glow_button', {
       group: "VisualsNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToSubTab('visuals', 'outline_glow');"
+      onactivate: "$.FunBun.navigateToSubTab('visuals', 'outline_glow');"
     });
 
     $.CreatePanel('Label', outlineGlowTabButton, '', { text: "Outline Glow", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
@@ -208,7 +208,7 @@ $.Osiris = (function () {
     var modelGlowTabButton = $.CreatePanel('RadioButton', centerContainer, 'model_glow_button', {
         group: "VisualsNavBar",
         class: "content-navbar__tabs__btn",
-        onactivate: "$.Osiris.navigateToSubTab('visuals', 'model_glow');"
+        onactivate: "$.FunBun.navigateToSubTab('visuals', 'model_glow');"
     });
 
     $.CreatePanel('Label', modelGlowTabButton, '', { text: "Model Glow", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
@@ -216,7 +216,7 @@ $.Osiris = (function () {
     var viewmodelTabButton = $.CreatePanel('RadioButton', centerContainer, 'viewmodel_button', {
         group: "VisualsNavBar",
         class: "content-navbar__tabs__btn",
-        onactivate: "$.Osiris.navigateToSubTab('visuals', 'viewmodel');"
+        onactivate: "$.FunBun.navigateToSubTab('visuals', 'viewmodel');"
     });
 
     $.CreatePanel('Label', viewmodelTabButton, '', { text: "Viewmodel", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
@@ -224,14 +224,14 @@ $.Osiris = (function () {
     var wallhackTabButton = $.CreatePanel('RadioButton', centerContainer, 'wallhack_button', {
         group: "VisualsNavBar",
         class: "content-navbar__tabs__btn",
-        onactivate: "$.Osiris.navigateToSubTab('visuals', 'wallhack');"
+        onactivate: "$.FunBun.navigateToSubTab('visuals', 'wallhack');"
     });
 
     $.CreatePanel('Label', wallhackTabButton, '', { text: "Wallhack", style: "color: #fff0fb; font-weight: bold; font-size: 15px;" });
   };
 
   var createCombatNavbar = function () {
-    var navbar = $.CreatePanel('Panel', $.Osiris.rootPanel.FindChildInLayoutFile('combat'), '', {
+    var navbar = $.CreatePanel('Panel', $.FunBun.rootPanel.FindChildInLayoutFile('combat'), '', {
       class: "content-navbar__tabs content-navbar__tabs--dark content-navbar__tabs--noflow",
       style: "background-color: #211329; border-bottom: 1px solid #b84d91;"
     });
@@ -243,7 +243,7 @@ $.Osiris = (function () {
     var sniperRiflesTabButton = $.CreatePanel('RadioButton', centerContainer, 'sniper_rifles_button', {
       group: "CombatNavBar",
       class: "content-navbar__tabs__btn",
-      onactivate: "$.Osiris.navigateToSubTab('combat', 'sniper_rifles');"
+      onactivate: "$.FunBun.navigateToSubTab('combat', 'sniper_rifles');"
     });
 
     $.CreatePanel('Label', sniperRiflesTabButton, '', { text: "Sniper rifles", style: "color: #f4d7ed;" });
@@ -252,9 +252,9 @@ $.Osiris = (function () {
   // Decorative sunset scene: built from Panorama panels so it ships with the menu
   // and does not depend on external files or runtime downloads.
   var createSunsetBackdrop = function () {
-    var scene = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SunsetBackdrop', {
+    var scene = $.CreatePanel('Panel', $.FunBun.rootPanel, 'SunsetBackdrop', {
       hittest: 'false',
-      style: "position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
+      style: "z-index: 0; position: 0px 0px 0px; width: 100%; height: 100%; background-color: gradient(linear, 0% 0%, 0% 100%, from(#21142f), color-stop(0.48, #8e3f78), color-stop(0.76, #d66b75), to(#281b36));"
     });
 
     var sun = $.CreatePanel('Panel', scene, 'SunsetDisc', {
@@ -317,8 +317,9 @@ $.Osiris = (function () {
 
   createNavbar();
 
-  var settingContent = $.CreatePanel('Panel', $.Osiris.rootPanel, 'SettingsMenuContent', {
-    class: "full-width full-height"
+  var settingContent = $.CreatePanel('Panel', $.FunBun.rootPanel, 'SettingsMenuContent', {
+    class: "full-width full-height",
+    style: "z-index: 2;"
   });
 
   var createTab = function(tabName) {
@@ -504,7 +505,7 @@ u8R"(
       direction: "horizontal"
     });
 
-    slider.SetPanelEvent('onvaluechanged', function () { $.Osiris.sliderUpdated('visuals', id, slider); });
+    slider.SetPanelEvent('onvaluechanged', function () { $.FunBun.sliderUpdated('visuals', id, slider); });
     slider.min = min;
     slider.max = max;
     slider.increment = 1.0;
@@ -515,7 +516,7 @@ u8R"(
       style: "width: 75px; margin-left: 10px; padding-left: 10px; text-align: center; font-size: 20px; color: #ffe8f8ff; font-weight: bold; font-family: Stratum2, notosans, 'Arial Unicode MS'; border: 2px solid #f064b655;"
     });
 
-    textEntry.SetPanelEvent('ontextentrysubmit', function () { $.Osiris.sliderTextEntryUpdated('visuals', `${id}_text`, textEntry); });
+    textEntry.SetPanelEvent('ontextentrysubmit', function () { $.FunBun.sliderTextEntryUpdated('visuals', `${id}_text`, textEntry); });
     textEntry.SetPanelEvent('onfocus', function () { textEntry.style.backgroundColor = 'gradient(linear, 100% 0%, 0% 0%, from(#2b1732ee), color-stop(0, #49203ddd), to(#2b1732ee))'; });
     textEntry.SetPanelEvent('onblur', function () { textEntry.style.backgroundColor = 'none'; });
     textEntry.SetPanelEvent('onmouseover', function () { if (!textEntry.BHasKeyFocus()) textEntry.style.backgroundColor = 'gradient(linear, 100% 0%, 0% 0%, from(#a83e7fff), color-stop(0, #10261900), to(#a83e7f88));'; });
@@ -582,7 +583,7 @@ u8R"(
   separator(flySection);
   createDropDown(flySection, "Fly Key", 'combat', 'fly_key', ['Left Shift', 'Right Shift', 'Left Ctrl', 'Right Ctrl', 'Left Alt', 'Right Alt']);
 
-  $.Osiris.navigateToSubTab('combat', 'sniper_rifles');
+  $.FunBun.navigateToSubTab('combat', 'sniper_rifles');
 
   var hud = createTab('hud');
   
@@ -1170,7 +1171,7 @@ u8R"(
   separator(viewmodelFov);
   createSlider(viewmodelFov, "Fov", 'viewmodel_fov', 40, 90);
 
-  $.Osiris.navigateToSubTab('visuals', 'player_info');
+  $.FunBun.navigateToSubTab('visuals', 'player_info');
 
   var sound = createTab('sound');
   
@@ -1190,6 +1191,6 @@ u8R"(
   separator(weaponSoundVisualization);
   createYesNoDropDown(weaponSoundVisualization, "Visualize Weapon Reload Sound", 'sound', 'visualize_reload_sound');
 
-  $.Osiris.navigateToTab('hud');
+  $.FunBun.navigateToTab('hud');
 })();
 )"

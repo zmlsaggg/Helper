@@ -35,7 +35,7 @@ jobs:
       if: matrix.os == 'windows-2022' && matrix.toolset == 'MSVC' && matrix.configuration == 'Release'
       uses: actions/upload-artifact@v4
       with:
-        name: Helper-Windows-x64
+        name: FunBun-Windows-x64
         path: x64/Release/Osiris.dll
         if-no-files-found: error
         compression-level: 9
@@ -96,7 +96,7 @@ jobs:
         echo "Creating $version"
     - uses: actions/download-artifact@v4
       with:
-        name: Helper-Windows-x64
+        name: FunBun-Windows-x64
         path: release
     - name: Publish release and tag
       uses: softprops/action-gh-release@v2

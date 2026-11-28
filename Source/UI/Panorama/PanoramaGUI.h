@@ -122,7 +122,7 @@ public:
 
         // The root panel is first created under JsSettings, then moved into
         // JsMainMenuContent. Check both locations before retrying creation.
-        if (!settings.findChildInLayoutFile("OsirisMenuTab") && !mainMenu.findChildInLayoutFile("OsirisMenuTab"))
+        if (!settings.findChildInLayoutFile("FunBunMenuTab") && !mainMenu.findChildInLayoutFile("FunBunMenuTab"))
             uiEngine().runScript(settings, reinterpret_cast<const char*>(
 #include "CreateGUI.js"
 ));
@@ -134,26 +134,27 @@ public:
   var context = $.GetContextPanel();
   var settings = context.FindChildTraverse('JsSettings');
   var content = context.FindChildTraverse('JsMainMenuContent');
-  var menuTab = settings && settings.FindChildInLayoutFile('OsirisMenuTab');
+  var menuTab = settings && settings.FindChildInLayoutFile('FunBunMenuTab');
   if (menuTab && content)
     menuTab.SetParent(content);
 
-  var openMenuButton = context.FindChildTraverse('OsirisOpenMenuButton');
+  var openMenuButton = context.FindChildTraverse('FunBunOpenMenuButton');
   if (!openMenuButton) {
     var settingsButton = context.FindChildTraverse('MainMenuNavBarSettings');
     var navBar = settingsButton && settingsButton.GetParent();
     if (!navBar)
       return;
 
-    openMenuButton = $.CreatePanel('RadioButton', navBar, 'OsirisOpenMenuButton', {
+    openMenuButton = $.CreatePanel('RadioButton', navBar, 'FunBunOpenMenuButton', {
       class: "mainmenu-top-navbar__radio-iconbtn",
       group: "NavBar",
-      onactivate: "MainMenu.NavigateToTab('OsirisMenuTab', '');"
+      onactivate: "MainMenu.NavigateToTab('FunBunMenuTab', '');"
     });
 
-    $.CreatePanel('Image', openMenuButton, '', {
+    $.CreatePanel('Label', openMenuButton, '', {
       class: "mainmenu-top-navbar__radio-btn__icon",
-      src: "s2r://panorama/images/icons/ui/bug.vsvg"
+      text: "🐰",
+      style: "font-size: 24px; horizontal-align: center; vertical-align: center;"
     });
 
     $.DispatchEvent('Activated', context.FindChildTraverse("MainMenuNavBarHome"), 'mouse');
@@ -161,8 +162,8 @@ public:
 })();
 )");
 
-        const auto guiButtonPanel = mainMenu.findChildInLayoutFile("OsirisOpenMenuButton");
-        const auto guiPanel = mainMenu.findChildInLayoutFile("OsirisMenuTab");
+        const auto guiButtonPanel = mainMenu.findChildInLayoutFile("FunBunOpenMenuButton");
+        const auto guiPanel = mainMenu.findChildInLayoutFile("FunBunMenuTab");
         if (!guiButtonPanel || !guiPanel)
             return false;
 
@@ -257,7 +258,7 @@ public:
         uiEngine().deletePanelByHandle(state().guiPanelHandle);
 
         if (auto&& settingsPanel = uiEngine().getPanelFromHandle(state().settingsPanelHandle))
-            uiEngine().runScript(settingsPanel, "delete $.Osiris");
+            uiEngine().runScript(settingsPanel, "delete $.FunBun");
     }
 
 private:

@@ -1,9 +1,9 @@
-# zmlsag
+# FunBun
 
-[![Windows](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/windows.yml)
-[![Linux](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/Helper/actions/workflows/linux.yml)
+[![Windows](https://github.com/zmlsaggg/FunBun/actions/workflows/windows.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/FunBun/actions/workflows/windows.yml)
+[![Linux](https://github.com/zmlsaggg/FunBun/actions/workflows/linux.yml/badge.svg?branch=master&event=push)](https://github.com/zmlsaggg/FunBun/actions/workflows/linux.yml)
 
-**zmlsag** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base while using its own green visual identity.
+**FunBun** is a cross-platform (Windows, Linux) Counter-Strike 2 modification with a Panorama-based GUI and rendering. This fork keeps the upstream feature base with a custom pink-and-purple Panorama interface.
 
 ## What's new
 
@@ -29,6 +29,8 @@
     * Added viewmodel fov modification
 
     ![Viewmodel fov modification](https://github.com/user-attachments/assets/3b9d6bde-a68c-4739-913c-d3b6caba4117)
+
+> Note: the Visual Studio solution, native build target, and on-disk config directory still use legacy upstream identifiers. They are intentionally retained in this UI/branding patch so existing build scripts and user configs keep working.
 
 ## Technical features
 
@@ -98,4 +100,4 @@ In a configuration file `default.cfg` inside `%appdata%\OsirisCS2\configs` direc
 
 > Copyright (c) 2018-2026 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/zmlsaggg/Helper/blob/master/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/zmlsaggg/FunBun/blob/master/LICENSE) file for details.
