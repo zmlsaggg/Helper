@@ -86,12 +86,7 @@ void ViewRenderHook_onRenderStart(cs2::CViewRender* thisptr) noexcept
     hookContext.make<InWorldPanels>().hideUnusedPanels();
 
     UnloadFlag unloadFlag;
-    auto&& panoramaGUI = hookContext.make<PanoramaGUI>();
-    if (!hookContext.panoramaGuiState().guiPanelHandle.isValid()) {
-        if (const auto mainMenu{hookContext.patternSearchResults().template get<MainMenuPanelPointer>()}; mainMenu && *mainMenu)
-            panoramaGUI.init(hookContext.template make<PanoramaUiPanel>((*mainMenu)->uiPanel));
-    }
-    panoramaGUI.run(unloadFlag);
+    hookContext.make<PanoramaGUI>().run(unloadFlag);
     hookContext.config().update();
     hookContext.config().performFileOperation();
 
