@@ -248,7 +248,7 @@ private:
                 using ValueType = typename ConfigVariable::ValueType;
                 const auto maximum = static_cast<std::uint64_t>((std::numeric_limits<ValueType>::max)());
                 hookContext.config().template setVariableWithoutAutoSave<ConfigVariable>(
-                    static_cast<ValueType>(std::min(value, maximum)));
+                    static_cast<ValueType>((std::min)(value, maximum)));
             };
         } else {
             return [this](ConfigVariable::ValueType value) {
