@@ -247,6 +247,14 @@ $.FunBun = (function () {
     });
 
     $.CreatePanel('Label', sniperRiflesTabButton, '', { text: "Sniper rifles", style: "color: #f4d7ed;" });
+
+    var flyTabButton = $.CreatePanel('RadioButton', centerContainer, 'fly_button', {
+      group: "CombatNavBar",
+      class: "content-navbar__tabs__btn",
+      onactivate: "$.FunBun.navigateToSubTab('combat', 'fly');"
+    });
+
+    $.CreatePanel('Label', flyTabButton, '', { text: "Fly", style: "color: #f4d7ed;" });
   };
 
   // Decorative sunset scene: built from Panorama panels so it ships with the menu
@@ -580,9 +588,10 @@ u8R"(
   var flySection = createSection(flyTab, 'Fly');
   createOnOffDropDown(flySection, "Enable Fly", 'combat', 'fly_enabled');
   separator(flySection);
-  createHueSlider(flySection, "Fly Speed Multiplier", 'fly_speed_multiplier', 0.5, 5.0);
-  separator(flySection);
-  createDropDown(flySection, "Fly Key", 'combat', 'fly_key', ['Left Shift', 'Right Shift', 'Left Ctrl', 'Right Ctrl', 'Left Alt', 'Right Alt']);
+  $.CreatePanel('Label', flySection, 'FlyControlsHint', {
+    text: "Movement: WASD · Up: Space · Down: Shift",
+    style: "color: #f4d7ed; margin: 8px 0px;"
+  });
 
   $.FunBun.navigateToSubTab('combat', 'sniper_rifles');
 
@@ -829,6 +838,14 @@ u8R"(
   var wallhackTab = createSubTab(visuals, 'wallhack');
   var wallhackSection = createSection(wallhackTab, 'Wallhack');
   createOnOffDropDown(wallhackSection, "Enable Wallhack", 'visuals', 'wallhack_enabled');
+  separator(wallhackSection);
+  createYesNoDropDown(wallhackSection, "Show Enemies", 'visuals', 'wallhack_enemies');
+  createYesNoDropDown(wallhackSection, "Show Teammates", 'visuals', 'wallhack_teammates');
+  createYesNoDropDown(wallhackSection, "Show Boxes", 'visuals', 'wallhack_boxes');
+  createYesNoDropDown(wallhackSection, "Show Skeleton", 'visuals', 'wallhack_skeleton');
+  createYesNoDropDown(wallhackSection, "Show Player Info", 'visuals', 'wallhack_info');
+  createYesNoDropDown(wallhackSection, "Show Distance", 'visuals', 'wallhack_distance');
+  createYesNoDropDown(wallhackSection, "Show Health", 'visuals', 'wallhack_health');
 
   var outlineGlowTab = createSubTab(visuals, 'outline_glow');
 
