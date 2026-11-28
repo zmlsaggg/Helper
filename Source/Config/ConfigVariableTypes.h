@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Features/Combat/Fly/FlyConfigVariables.h>
 #include <Features/Combat/SniperRifles/NoScopeInaccuracyVis/NoScopeInaccuracyVisConfigVariables.h>
 #include <Features/Hud/BombPlantAlert/BombPlantAlertConfigVariables.h>
 #include <Features/Hud/BombTimer/BombTimerConfigVariables.h>
@@ -11,6 +12,7 @@
 #include <Features/Visuals/OutlineGlow/OutlineGlowConfigVariables.h>
 #include <Features/Visuals/PlayerInfoInWorld/PlayerInfoInWorldConfigVariables.h>
 #include <Features/Visuals/ViewmodelMod/ViewmodelModConfigVariables.h>
+#include <Features/Visuals/Wallhack/WallhackConfigVariables.h>
 #include <Utils/TypeList.h>
 
 using ConfigVariableTypes = TypeList<
@@ -98,8 +100,9 @@ using ConfigVariableTypes = TypeList<
     viewmodel_mod_vars::ModifyFov,
     viewmodel_mod_vars::Fov,
     no_scope_inaccuracy_vis_vars::Enabled,
-fly_vars::Enabled,
-fly_vars::SpeedMultiplier,
-fly_vars::FlyKey,
+    fly_vars::Enabled,
+    fly_vars::SpeedMultiplier,
+    fly_vars::FlyKey,
+    wallhack_vars::Enabled,
     BombPlantAlertEnabled
 >;
