@@ -1,6 +1,13 @@
 name: Linux
 
-on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [master]
+  pull_request:
 
 jobs:
   build:

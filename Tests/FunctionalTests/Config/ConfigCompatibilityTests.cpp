@@ -174,6 +174,10 @@ protected:
     void setVariableExpectationsCurrent()
     {
         setVariableExpectationsV10();
+        get<fly_vars::Enabled>() = false;
+        get<fly_vars::SpeedMultiplier>() = 1.0f;
+        get<fly_vars::FlyKey>() = 0;
+        get<wallhack_vars::Enabled>() = false;
     }
 
     struct VariableChecker {
