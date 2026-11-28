@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Features/Visuals/ModelGlow/ModelGlowState.h>
+#include <Features/Visuals/Wallhack/WallhackConfigVariables.h>
 #include <Features/Visuals/PlayerInfoInWorld/PlayerStateIcons/PlayerStateIconsToShow.h>
 #include <GameClient/Panorama/PanoramaDropDown.h>
 #include <GameClient/Panorama/Slider.h>
@@ -30,6 +31,7 @@ public:
         initModelGlowTab(guiPanel);
         initOutlineGlowTab(guiPanel);
         initViewmodelTab(guiPanel);
+        initWallhackTab(guiPanel);
     }
 
     void updateFromConfig(auto&& mainMenu) const noexcept
@@ -38,6 +40,7 @@ public:
         updateOutlineGlowTab(mainMenu);
         updateModelGlowTab(mainMenu);
         updateViewmodelTab(mainMenu);
+        updateWallhackTab(mainMenu);
     }
 
 private:
@@ -120,6 +123,18 @@ private:
         registerHueSliderUpdateHandler<outline_glow_vars::TickingBombHue, "outline_glow_ticking_bomb_hue">(guiPanel);
         registerHueSliderUpdateHandler<outline_glow_vars::DefuseKitHue, "outline_glow_defuse_kit_hue">(guiPanel);
         registerHueSliderUpdateHandler<outline_glow_vars::HostageHue, "outline_glow_hostage_hue">(guiPanel);
+    }
+
+    void initWallhackTab(auto&& guiPanel) const
+    {
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::Enabled>>(guiPanel, "wallhack_enabled");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowEnemies>>(guiPanel, "wallhack_enemies");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowTeammates>>(guiPanel, "wallhack_teammates");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowBoxes>>(guiPanel, "wallhack_boxes");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowSkeleton>>(guiPanel, "wallhack_skeleton");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowInfo>>(guiPanel, "wallhack_info");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowDistance>>(guiPanel, "wallhack_distance");
+        initDropDown<OnOffDropdownSelectionChangeHandler<HookContext, wallhack_vars::ShowHealth>>(guiPanel, "wallhack_health");
     }
 
     void initViewmodelTab(auto&& guiPanel) const
@@ -220,6 +235,18 @@ private:
         updateHueSlider<model_glow_vars::DroppedBombHue>(mainMenu, "model_glow_dropped_bomb_hue");
         updateHueSlider<model_glow_vars::TickingBombHue>(mainMenu, "model_glow_ticking_bomb_hue");
         updateHueSlider<model_glow_vars::DefuseKitHue>(mainMenu, "model_glow_defuse_kit_hue");
+    }
+
+    void updateWallhackTab(auto&& mainMenu) const noexcept
+    {
+        setDropDownSelectedIndex(mainMenu, "wallhack_enabled", !GET_CONFIG_VAR(wallhack_vars::Enabled));
+        setDropDownSelectedIndex(mainMenu, "wallhack_enemies", !GET_CONFIG_VAR(wallhack_vars::ShowEnemies));
+        setDropDownSelectedIndex(mainMenu, "wallhack_teammates", !GET_CONFIG_VAR(wallhack_vars::ShowTeammates));
+        setDropDownSelectedIndex(mainMenu, "wallhack_boxes", !GET_CONFIG_VAR(wallhack_vars::ShowBoxes));
+        setDropDownSelectedIndex(mainMenu, "wallhack_skeleton", !GET_CONFIG_VAR(wallhack_vars::ShowSkeleton));
+        setDropDownSelectedIndex(mainMenu, "wallhack_info", !GET_CONFIG_VAR(wallhack_vars::ShowInfo));
+        setDropDownSelectedIndex(mainMenu, "wallhack_distance", !GET_CONFIG_VAR(wallhack_vars::ShowDistance));
+        setDropDownSelectedIndex(mainMenu, "wallhack_health", !GET_CONFIG_VAR(wallhack_vars::ShowHealth));
     }
 
     void updateViewmodelTab(auto&& mainMenu) const noexcept
