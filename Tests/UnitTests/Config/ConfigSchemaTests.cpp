@@ -61,6 +61,12 @@ TEST_F(ConfigSchemaTest, SchemaIsValid) {
         ++nestingLevels.back();
     });
 
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_)).WillRepeatedly([this] {
+        EXPECT_GT(nestingLevels.size(), 0);
+        EXPECT_LT(nestingLevels.back(), config_params::kMaxObjectIndex);
+        ++nestingLevels.back();
+    });
+
     configSchema.performConversion(mockConfigConversion);
 }
 
@@ -89,7 +95,17 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsLoadedOnce) {
                     EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
                     configVariableIndexes.insert(configVariableIndex);
                 }));
-            valueSetter(std::uint64_t{}); 
+            valueSetter(std::uint64_t{});
+        }));
+
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_))
+        .WillRepeatedly(testing::WithArg<1>([this](auto valueSetter) {
+            EXPECT_CALL(mockConfig, setVariableWithoutAutoSave(testing::_, testing::_))
+                .WillOnce(testing::WithArg<0>([this](std::size_t configVariableIndex) {
+                    EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
+                    configVariableIndexes.insert(configVariableIndex);
+                }));
+            valueSetter(float{});
         }));
 
     configSchema.performConversion(mockConfigConversion);
@@ -123,7 +139,18 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsSavedOnce) {
                     configVariableIndexes.insert(configVariableIndex);
                     return std::any{};
             }));
-            valueGetter(); 
+            valueGetter();
+        }));
+
+    EXPECT_CALL(mockConfigConversion, real(testing::_, testing::_, testing::_))
+        .WillRepeatedly(testing::WithArg<2>([this](auto valueGetter) {
+            EXPECT_CALL(mockConfig, getVariable(testing::_))
+                .WillOnce(testing::WithArg<0>([this](std::size_t configVariableIndex) {
+                    EXPECT_FALSE(configVariableIndexes.contains(configVariableIndex));
+                    configVariableIndexes.insert(configVariableIndex);
+                    return std::any{};
+            }));
+            valueGetter();
         }));
 
     configSchema.performConversion(mockConfigConversion);
