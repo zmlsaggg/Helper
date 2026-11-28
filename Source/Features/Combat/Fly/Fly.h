@@ -10,7 +10,7 @@
 #include <GameClient/LocalPlayer/LocalPlayer.h>
 #include <GameClient/WorldToScreen/WorldToClipSpaceConverter.h>
 #include <GameClient/Panorama/PanoramaUiPanel.h>
-#include <Utils/ConfigVariable.h>
+#include <Config/ConfigVariable.h>
 
 #include "FlyConfigVariables.h"
 
