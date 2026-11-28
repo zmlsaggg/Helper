@@ -165,9 +165,9 @@ TEST_F(ConfigSchemaTest, EachConfigVariableIsSavedOnce) {
 
 TEST(ConfigFloatConversionTest, ParsesAndSerializesSpeedMultiplier)
 {
-    constexpr auto source = u8R"({"SpeedMultiplier":1.25})";
+    constexpr char8_t source[] = u8R"({"SpeedMultiplier":1.25})";
     ConfigStringConversionState readState{};
-    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) / sizeof(source[0]) - 1}, readState};
+    ConfigFromString reader{std::span<const char8_t>{source, sizeof(source) - 1}, readState};
     float parsedValue{};
     reader.beginRoot();
     reader.real(u8"SpeedMultiplier", [&parsedValue](float value) { parsedValue = value; }, [] { return 1.0f; });

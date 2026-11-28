@@ -1,7 +1,6 @@
 #pragma once
 
 #include <span>
-#include <cmath>
 #include <cstdint>
 #include <limits>
 
@@ -105,7 +104,7 @@ private:
 
         const auto parsedValue = (whole + fraction / divisor) * (negative ? -1.0 : 1.0);
         value = static_cast<float>(parsedValue);
-        return std::isfinite(value);
+        return value <= (std::numeric_limits<float>::max)() && value >= -(std::numeric_limits<float>::max)();
     }
 
     [[nodiscard]] bool parseFloatWholePart(double& whole) noexcept
